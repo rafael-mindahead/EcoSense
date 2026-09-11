@@ -2,6 +2,9 @@
 
 use App\Core\Response;
 use  App\Config\Database;
+use App\Controllers\MeansurementController;
+use App\Repositories\MeansurementRepository;
+
 
 $router->get('/api/health', function () {
 
@@ -26,4 +29,17 @@ $router->get('/api/database/health',function(){
         ], 500);
     }
 });
-?>
+$router->get('/api/v1/meansurements/latest', function () {
+
+    $connection = Database::connect();
+
+    $repository = new MeansurementRepository(
+        $connection
+    );
+
+    $controller = new MeansurementController(
+        $repository
+    );
+
+    $controller->latest();
+});
