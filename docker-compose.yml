@@ -1,0 +1,52 @@
+services:
+
+  nginx:
+    image: nginx:alpine
+    container_name: ecosense_nginx
+    ports:
+      - "8080:80"
+    volumes:
+      - ./api:/var/www/html
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - php
+    networks:
+      - ecosense_network
+
+  php:
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile
+    container_name: ecosense_php
+    volumes:
+      - ./api:/var/www/html
+    networks:
+      - ecosense_network
+
+  postgres:
+    image: postgres:17
+    container_name: ecosense_postgres
+    restart: unless-stopped
+
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+
+    ports:
+      - "5432:5432"
+
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+    networks:
+      - ecosense_network
+
+
+volumes:
+  postgres_data:
+
+
+networks:
+  ecosense_network:
+    driver: bridge

@@ -1,0 +1,13 @@
+{
+    "name": "ecosense/api",
+    "description": "EcoSense REST API",
+    "type": "project",
+
+    "autoload": {
+        "psr-4": {
+            "App\\": "app/"
+        }
+    },
+
+    "require": {}
+}
