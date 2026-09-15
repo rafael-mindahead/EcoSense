@@ -45,4 +45,27 @@ class MeansurementRepository
             'created_at' => $meansurement['created_at']
         ];
     }
+    public function findAll(int $limit = 50): array
+    {
+
+        $sql ="
+        SELECT
+            id,
+            device_id,
+            temperature,
+            humidity,
+            luminosity,
+            air_quality,
+            created_at
+        FROM meansurements
+        ORDER BY created_at DESC
+        LIMIT {$limit}
+        ";
+        $statement = $this->connection->query($sql);
+
+        $meansurements = $statement->fetchAll(
+        PDO::FETCH_ASSOC
+        );
+        return $meansurements;
+    }
 }

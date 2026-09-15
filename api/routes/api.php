@@ -43,3 +43,16 @@ $router->get('/api/v1/meansurements/latest', function () {
 
     $controller->latest();
 });
+$router->get('/api/v1/meansurements', function (){
+
+    $connection = Database::connect();
+
+    $repository = new MeansurementRepository(
+        $connection
+    );
+
+    $controller = new MeansurementController(
+        $repository
+    );
+    $controller->index();
+});

@@ -37,4 +37,25 @@ class MeansurementController
             ], 500);
         }
     }
+    public function index(): void{
+        try {
+
+        $limit = isset($_GET['limit'])?(int) $_GET['limit']:50;
+
+        $limit = max(1, min($limit, 100));
+
+        $meansurements = $this->repository->findAll($limit);
+
+        Response::json([
+            'count' => count($meansurements),
+            'limit' => $limit,
+            'data' => $meansurements
+        ]);
+        } catch (\Throwable $error) {
+            Response::json([
+                'status' => 'error',
+                'message' => $error->getMessage()
+            ], 500);
+        }
+    }
 }
