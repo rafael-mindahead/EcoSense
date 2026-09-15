@@ -4,6 +4,8 @@ use App\Core\Response;
 use  App\Config\Database;
 use App\Controllers\MeansurementController;
 use App\Repositories\MeansurementRepository;
+use App\Controllers\DeviceController;
+use App\Repositories\DeviceRepository;
 
 
 $router->get('/api/health', function () {
@@ -54,5 +56,19 @@ $router->get('/api/v1/meansurements', function (){
     $controller = new MeansurementController(
         $repository
     );
+    $controller->index();
+});
+$router->get('/api/v1/devices', function(){
+
+    $connection = Database::connect();
+
+    $repository = new DeviceRepository(
+        $connection
+    );
+
+    $controller = new DeviceController(
+        $repository
+    );
+
     $controller->index();
 });
