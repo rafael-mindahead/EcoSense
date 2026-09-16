@@ -58,4 +58,52 @@ class MeansurementController
             ], 500);
         }
     }
+    public function store(): void
+    {
+        try{
+
+            $body = json_decode(
+                file_get_contents('php://input'),
+                true
+            );
+            if (!is_array($body)) {
+
+                Response::json([
+                    'error' => 'json invalido'
+                ], 400);
+
+                return;
+            }
+
+            $requiredFields = [
+                'device_id',
+                'temperature',
+                'humidity',
+                'luminosity',
+                'air_quality'
+            ];
+            foreach ($requiredFields as $field) {
+                if (!array_key_exists($field, $body)) {
+
+                    Response::json([
+                        'error' => "Field{$field} is required"
+                    ], 422);
+
+                    return;
+                }
+            }
+            $meansurement = 
+                $this->repository->create($body);
+
+            Response::json([
+                'message' => 'meansurement criado'
+                'data' => $meansurement
+            ], 201);
+        } catch (\Throwable $error) {
+            Response::json([
+                'status' => 'error',
+                'message' => $error->getMessage()
+            ], 500);
+        }
+    }
 }

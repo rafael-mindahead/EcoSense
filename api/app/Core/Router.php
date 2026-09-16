@@ -10,6 +10,10 @@ class Router
     {
         $this->routes['GET'][$path] = $handler;
     }
+    public function post(string $path, callable $handler): void
+    {
+        $this->routes['POST'][$path] = $handler;
+    }
 
     public function dispatch(): void
     {

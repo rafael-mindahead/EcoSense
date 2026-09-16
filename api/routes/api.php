@@ -72,3 +72,17 @@ $router->get('/api/v1/devices', function(){
 
     $controller->index();
 });
+$router->post('/api/v1/meansurements', function(){
+
+    $connection = Database::connect();
+
+    $repository = new MeansurementRepository(
+        $connection
+    );
+    
+    $controller = new MeansurementController(
+        $repository
+    );
+
+    $controller->store();
+});

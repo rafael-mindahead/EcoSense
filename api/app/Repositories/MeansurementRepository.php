@@ -68,4 +68,44 @@ class MeansurementRepository
         );
         return $meansurements;
     }
+    public function create(array $data): array
+    {
+        $sql = "
+            INSERT INTO meansurements(
+            device_id,
+            temperature,
+            humidity,
+            luminosity,
+            air_quality
+            )
+            VALUES(
+                :device_id,
+                :temperature,
+                :humidity,
+                :luminosity,
+                :air_quality
+            )
+                RETURNING
+                    id,
+                    device_id,
+                    temperature,
+                    humidity,
+                    luminosity,
+                    air_quality,
+                    created_at        
+        ";
+
+        $statement = $this->connection->prepare($sql);
+
+        $statement->execute([
+            ':device_id' => $data['device_id'],
+            ':temperature' => $data ['temperature'],
+            ':humidity' => $data['humidity'],
+            ':luminosity' => $data['luminosity'],
+            ':air_quality' => $data['air_quality']
+        ]);
+        return $statement->fetch(
+            PDO::FETCH_ASSOC
+        );
+    }
 }
