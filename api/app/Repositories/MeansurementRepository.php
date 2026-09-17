@@ -29,7 +29,8 @@ class MeansurementRepository
 
         $statement = $this->connection->query($sql);
 
-        $meansurement = $statement->fetch(PDO::FETCH_ASSOC);
+        $meansurement =
+            $statement->fetch(PDO::FETCH_ASSOC);
 
         if (!$meansurement) {
             return null;
@@ -45,65 +46,71 @@ class MeansurementRepository
             'created_at' => $meansurement['created_at']
         ];
     }
+
     public function findAll(int $limit = 50): array
     {
+        $limit = max(1, min($limit, 100));
 
-        $sql ="
-        SELECT
-            id,
-            device_id,
-            temperature,
-            humidity,
-            luminosity,
-            air_quality,
-            created_at
-        FROM meansurements
-        ORDER BY created_at DESC
-        LIMIT {$limit}
+        $sql = "
+            SELECT
+                id,
+                device_id,
+                temperature,
+                humidity,
+                luminosity,
+                air_quality,
+                created_at
+            FROM meansurements
+            ORDER BY created_at DESC
+            LIMIT {$limit}
         ";
-        $statement = $this->connection->query($sql);
 
-        $meansurements = $statement->fetchAll(
-        PDO::FETCH_ASSOC
+        $statement =
+            $this->connection->query($sql);
+
+        return $statement->fetchAll(
+            PDO::FETCH_ASSOC
         );
-        return $meansurements;
     }
+
     public function create(array $data): array
     {
         $sql = "
-            INSERT INTO meansurements(
-            device_id,
-            temperature,
-            humidity,
-            luminosity,
-            air_quality
+            INSERT INTO meansurements (
+                device_id,
+                temperature,
+                humidity,
+                luminosity,
+                air_quality
             )
-            VALUES(
+            VALUES (
                 :device_id,
                 :temperature,
                 :humidity,
                 :luminosity,
                 :air_quality
             )
-                RETURNING
-                    id,
-                    device_id,
-                    temperature,
-                    humidity,
-                    luminosity,
-                    air_quality,
-                    created_at        
+            RETURNING
+                id,
+                device_id,
+                temperature,
+                humidity,
+                luminosity,
+                air_quality,
+                created_at
         ";
 
-        $statement = $this->connection->prepare($sql);
+        $statement =
+            $this->connection->prepare($sql);
 
         $statement->execute([
             ':device_id' => $data['device_id'],
-            ':temperature' => $data ['temperature'],
+            ':temperature' => $data['temperature'],
             ':humidity' => $data['humidity'],
             ':luminosity' => $data['luminosity'],
             ':air_quality' => $data['air_quality']
         ]);
+
         return $statement->fetch(
             PDO::FETCH_ASSOC
         );

@@ -21,7 +21,7 @@ class MeansurementController
             if (!$meansurement) {
 
                 Response::json([
-                    'error' => 'No measurements found'
+                    'error' => 'No meansurements found'
                 ], 404);
 
                 return;
@@ -37,39 +37,48 @@ class MeansurementController
             ], 500);
         }
     }
-    public function index(): void{
+
+    public function index(): void
+    {
         try {
 
-        $limit = isset($_GET['limit'])?(int) $_GET['limit']:50;
+            $limit = isset($_GET['limit'])
+                ? (int) $_GET['limit']
+                : 50;
 
-        $limit = max(1, min($limit, 100));
+            $limit = max(1, min($limit, 100));
 
-        $meansurements = $this->repository->findAll($limit);
+            $meansurements =
+                $this->repository->findAll($limit);
 
-        Response::json([
-            'count' => count($meansurements),
-            'limit' => $limit,
-            'data' => $meansurements
-        ]);
+            Response::json([
+                'count' => count($meansurements),
+                'limit' => $limit,
+                'data' => $meansurements
+            ]);
+
         } catch (\Throwable $error) {
+
             Response::json([
                 'status' => 'error',
                 'message' => $error->getMessage()
             ], 500);
         }
     }
+
     public function store(): void
     {
-        try{
+        try {
 
             $body = json_decode(
                 file_get_contents('php://input'),
                 true
             );
+
             if (!is_array($body)) {
 
                 Response::json([
-                    'error' => 'json invalido'
+                    'error' => 'JSON invalido'
                 ], 400);
 
                 return;
@@ -82,24 +91,29 @@ class MeansurementController
                 'luminosity',
                 'air_quality'
             ];
+
             foreach ($requiredFields as $field) {
+
                 if (!array_key_exists($field, $body)) {
 
                     Response::json([
-                        'error' => "Field{$field} is required"
+                        'error' => "Field {$field} is required"
                     ], 422);
 
                     return;
                 }
             }
-            $meansurement = 
+
+            $meansurement =
                 $this->repository->create($body);
 
             Response::json([
-                'message' => 'meansurement criado'
+                'message' => 'Meansurement criado',
                 'data' => $meansurement
             ], 201);
+
         } catch (\Throwable $error) {
+
             Response::json([
                 'status' => 'error',
                 'message' => $error->getMessage()
