@@ -48,8 +48,11 @@ $router->get('/api/v1/meansurements/latest', function () {
     $repository =
         new MeansurementRepository($connection);
 
+    $deviceRepository =
+        new DeviceRepository($connection);
+
     $controller =
-        new MeansurementController($repository);
+        new MeansurementController($repository, $deviceRepository);
 
     $controller->latest();
 });
@@ -62,8 +65,11 @@ $router->get('/api/v1/meansurements', function () {
     $repository =
         new MeansurementRepository($connection);
 
+    $deviceRepository =
+        new DeviceRepository($connection);
+
     $controller =
-        new MeansurementController($repository);
+        new MeansurementController($repository, $deviceRepository);
 
     $controller->index();
 });
@@ -76,8 +82,11 @@ $router->post('/api/v1/meansurements', function () {
     $repository =
         new MeansurementRepository($connection);
 
+    $deviceRepository =
+        new DeviceRepository($connection);
+
     $controller =
-        new MeansurementController($repository);
+        new MeansurementController($repository, $deviceRepository);
 
     $controller->store();
 });

@@ -4,11 +4,13 @@ namespace App\Controllers;
 
 use App\Core\Response;
 use App\Repositories\MeansurementRepository;
+use App\Repositories\DeviceRepository;
 
 class MeansurementController
 {
     public function __construct(
-        private MeansurementRepository $repository
+        private MeansurementRepository $repository,
+        private DeviceRepository $deviceRepository
     ) {
     }
 
@@ -107,9 +109,14 @@ class MeansurementController
             $meansurement =
                 $this->repository->create($body);
 
+            $device = $this->deviceRepository->markOnline(
+                (int) $body['device_id']
+            );
+
             Response::json([
                 'message' => 'Meansurement criado',
-                'data' => $meansurement
+                'data' => $meansurement,
+                'device' => $device
             ], 201);
 
         } catch (\Throwable $error) {
