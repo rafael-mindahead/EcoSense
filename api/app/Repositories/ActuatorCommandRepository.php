@@ -57,4 +57,27 @@ class ActuatorCommandRepository
             ':id' => $id
         ]);
     }
+    public function markExecuted(int $id): ?array
+    {
+        $sql = "
+            UPDATE actuator_commands
+            SET
+                status = 'executed',
+                executed_at = CURRENT_TIMESTAMP
+            WHERE id = :id
+            RETURNING *
+        ";
+
+        $statement = $this->connection->prepare($sql);
+
+        $statement->execute([
+            ':id' => $id
+        ]);
+
+        $command = $statement->fetch(
+            PDO::FETCH_ASSOC
+        );
+
+        return $command ?: null;
+    }
 }
