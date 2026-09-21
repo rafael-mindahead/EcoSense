@@ -29,6 +29,8 @@ services:
       - ./api:/var/www/html
 
     environment:
+      MQTT_HOST: mosquitto
+      MQTT_PORT: 1883
       DB_HOST: postgres
       DB_PORT: 5432
       DB_NAME: ${POSTGRES_DB}
@@ -37,6 +39,7 @@ services:
 
     depends_on:
       - postgres
+      - mosquitto
 
     networks:
       - ecosense_network
