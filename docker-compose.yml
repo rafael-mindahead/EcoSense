@@ -1,5 +1,36 @@
 services:
 
+  mqtt_consumer:
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile
+
+    container_name: ecosense_mqtt_consumer
+
+    command: php workers/mqtt_consumer.php
+
+    volumes:
+      - ./api:/var/www/html
+
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: ${POSTGRES_DB}
+      DB_USER: ${POSTGRES_USER}
+      DB_PASSWORD: ${POSTGRES_PASSWORD}
+
+      MQTT_HOST: mosquitto
+      MQTT_PORT: 1883
+
+    depends_on:
+      - postgres
+      - mosquitto
+
+    restart: unless-stopped
+
+    networks:
+      - ecosense_network
+
   nginx:
     image: nginx:alpine
     container_name: ecosense_nginx
