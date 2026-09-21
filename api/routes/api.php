@@ -9,6 +9,10 @@ use App\Repositories\MeansurementRepository;
 use App\Controllers\DeviceController;
 use App\Repositories\DeviceRepository;
 
+use App\Controllers\ActuatorController;
+use App\Repositories\ActuatorCommandRepository;
+use App\Services\MqttService;
+
 
 $router->get('/api/health', function () {
 
@@ -103,4 +107,46 @@ $router->get('/api/v1/devices', function () {
         new DeviceController($repository);
 
     $controller->index();
+});
+
+$router->post('/api/v1/actuators/fan', function () {
+
+    $connection = Database::connect();
+
+    $repository =
+        new ActuatorCommandRepository(
+            $connection
+        );
+
+    $mqtt =
+        new MqttService();
+
+    $controller =
+        new ActuatorController(
+            $repository,
+            $mqtt
+        );
+
+    $controller->control('fan');
+});
+
+$router->post('/api/v1/actuators/exhaust', function () {
+
+    $connection = Database::connect();
+
+    $repository =
+        new ActuatorCommandRepository(
+            $connection
+        );
+
+    $mqtt =
+        new MqttService();
+
+    $controller =
+        new ActuatorController(
+            $repository,
+            $mqtt
+        );
+
+    $controller->control('exhaust');
 });
