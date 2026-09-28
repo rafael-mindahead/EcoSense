@@ -1,277 +1,227 @@
-🌱 EcoSense
+# EcoSense
 
-Sistema ciber-físico de monitoramento ambiental inteligente desenvolvido com ESP32, API REST em PHP, PostgreSQL, MQTT e interfaces Web/iOS.
+EcoSense é um sistema ciber-físico de monitoramento ambiental desenvolvido com ESP32, MQTT, PHP, PostgreSQL, Docker e interfaces Web/iOS.
 
-O objetivo do EcoSense é monitorar variáveis ambientais, armazenar medições, gerar alertas e permitir o acionamento de dispositivos físicos, como ventiladores e exaustores.
+O projeto monitora variáveis ambientais, armazena medições, avalia limites configurados, gera alertas e envia comandos para atuadores como ventiladores e exaustores.
 
-Status atual: 🚧 Em desenvolvimento — estrutura inicial da API e infraestrutura Docker.
+> Status: em desenvolvimento. A infraestrutura, a API REST, o fluxo MQTT, os alertas e o controle de atuadores já estão implementados. A integração com o ESP32 físico depende da conexão USB adequada e será retomada em seguida.
 
-🎯 Objetivo
+## Objetivo
 
-O EcoSense foi pensado para monitorar ambientes como estufas, laboratórios e outros espaços que precisam de acompanhamento constante de condições ambientais.
+O EcoSense foi pensado para ambientes que precisam de acompanhamento contínuo, como estufas, laboratórios e espaços controlados.
 
-O sistema deverá ser capaz de:
+A solução foi projetada para:
 
-Monitorar temperatura e umidade;
+- monitorar temperatura e umidade;
+- monitorar luminosidade;
+- monitorar qualidade do ar;
+- manter histórico de medições;
+- acompanhar o estado dos dispositivos;
+- gerar alertas a partir de limites ambientais;
+- enviar comandos para ventiladores e exaustores;
+- disponibilizar dados por API REST;
+- exibir informações em dashboard Web;
+- disponibilizar uma aplicação iOS em SwiftUI.
 
-Monitorar luminosidade;
+## Arquitetura atual
 
-Monitorar qualidade do ar;
+### Telemetria
 
-Armazenar histórico de medições;
-
-Exibir dados em um dashboard web;
-
-Gerar gráficos com Chart.js;
-
-Permitir acesso por aplicativo iOS;
-
-Enviar e receber mensagens por MQTT;
-
-Acionar ventiladores e exaustores por meio de módulos de acionamento.
-
-🏗️ Arquitetura planejada
-
-Sensores ↓ ESP32 / C++ ↓ Wi-Fi / MQTT ↓ Mosquitto ↓ PHP API REST ↓ PostgreSQL ↑ ├───────────────┐ │ │ Dashboard Web App iOS HTML/CSS/JS Swift/SwiftUI Chart.js
-
-Fluxo de acionamento
-
-Web / iOS ↓ PHP API REST ↓ MQTT ↓ ESP32 ↓ Módulo Relé ↓ Ventilador / Exaustor
-
-🧰 Tecnologias
-
-Embarcado
-
+```text
 ESP32
-
-C++
-
-Backend
-
-PHP 8.3
-
-API REST
-
-Composer
-
-Banco de dados
-
-PostgreSQL
-
-Comunicação IoT
-
-MQTT
-
+  ↓ Wi-Fi / MQTT
 Mosquitto
-
-Front-end Web
-
-HTML
-
-CSS
-
-JavaScript
-
-Chart.js
-
-Mobile
-
-Swift
-
-SwiftUI
-
-iOS
-
-Infraestrutura
-
-Docker
-
-Docker Compose
-
-Nginx
-
-PHP-FPM
-
-📁 Estrutura inicial do projeto
-
-EcoSense/ │ ├── api/ │ ├── app/ │ │ └── Core/ │ │ ├── Response.php │ │ └── Router.php │ │ │ ├── public/ │ │ └── index.php │ │ │ └── routes/ │ └── api.php │ ├── docker/ │ ├── nginx/ │ │ └── default.conf │ │ │ └── php/ │ └── Dockerfile │ ├── .env ├── .env.example ├── composer.json ├── docker-compose.yml └── README.md
-
-🐳 Infraestrutura com Docker
-
-A aplicação será executada com Docker Compose.
-
-Nginx
-
-Responsável por receber requisições HTTP e encaminhá-las ao PHP-FPM.
-
-PHP
-
-Responsável pela API REST e pelas regras de negócio.
-
+  ↓
+MQTT Consumer (PHP)
+  ↓
+MeansurementService
+  ├── MeansurementRepository
+  ├── DeviceRepository
+  ├── SensorLimitRepository
+  └── AlertRepository
+  ↓
 PostgreSQL
+  ↓
+REST API
+  ↓
+Web / iOS
+```
 
-Responsável pelo armazenamento das medições, dispositivos, alertas e histórico.
+### Controle de atuadores
 
+```text
+Web / iOS
+  ↓ REST
+PHP API
+  ↓
+MqttService
+  ↓ MQTT
 Mosquitto
+  ↓
+ESP32
+  ↓
+Relé
+  ↓
+Ventilador / Exaustor
+```
 
-Será adicionado posteriormente para realizar a comunicação MQTT com o ESP32.
+O ciclo de comando também possui confirmação por ACK:
 
-🔌 API REST
+```text
+pending → sent → executed
+```
 
-A API será o ponto central de comunicação entre os clientes do sistema.
+## Tecnologias
 
-Clientes previstos:
+### Embarcado
 
-Dashboard Web;
+- ESP32
+- C++
+- Wi-Fi
+- MQTT
 
-Aplicativo iOS;
+### Backend
 
-Futuras integrações.
+- PHP 8.3
+- API REST
+- Composer
+- PSR-4
 
-Endpoint inicial
+### Banco de dados
 
-GET /api/health
+- PostgreSQL 17
 
-Resposta esperada:
+### Mensageria IoT
 
-{ "status": "online", "service": "EcoSense API", "version": "1.0.0" }
+- MQTT
+- Eclipse Mosquitto
+- php-mqtt/client
 
-📊 Endpoints planejados
+### Front-end planejado
 
-Medições
+- HTML
+- CSS
+- JavaScript
+- Chart.js
 
-GET /api/v1/measurements
+### Mobile planejado
 
-GET /api/v1/measurements/latest
+- Swift
+- SwiftUI
+- iOS
 
-Dispositivos
+### Infraestrutura
 
-GET /api/v1/devices/{id}
+- Docker
+- Docker Compose
+- Nginx
+- PHP-FPM
 
-Atuadores
+## Estrutura principal
 
-POST /api/v1/actuators/fan
+```text
+EcoSense/
+├── api/
+│   ├── app/
+│   │   ├── Config/
+│   │   ├── Controllers/
+│   │   ├── Core/
+│   │   ├── Repositories/
+│   │   └── Services/
+│   ├── public/
+│   ├── routes/
+│   └── workers/
+├── database/
+│   └── migrations/
+├── docker/
+│   ├── mosquitto/
+│   ├── nginx/
+│   └── php/
+├── Docs/
+├── .env.example
+├── docker-compose.yml
+└── README.md
+```
 
-POST /api/v1/actuators/exhaust
+## Banco de dados
 
-Alertas
+Entidades implementadas:
 
-GET /api/v1/alerts
+- `devices`
+- `meansurements`
+- `actuator_commands`
+- `sensor_limits`
+- `alerts`
 
-🗃️ Banco de dados planejado
+O projeto mantém a grafia `meansurements` na API e no banco por compatibilidade com a implementação atual.
 
-Principais entidades:
+## MQTT
 
-devices measurements actuator_commands alerts
+Tópicos atualmente utilizados:
 
-Relacionamento principal:
-
-devices │ │ 1 │ │ N ▼ measurements
-
-Um dispositivo ESP32 poderá registrar diversas medições ao longo do tempo.
-
-📡 MQTT
-
-A comunicação com o ESP32 será feita por MQTT.
-
-Exemplos de tópicos planejados:
-
-ecosense/device/1/telemetry ecosense/device/1/status ecosense/device/1/commands/fan ecosense/device/1/commands/exhaust
+```text
+ecosense/device/+/telemetry
+ecosense/device/+/commands/ack
+ecosense/device/{id}/commands/fan
+ecosense/device/{id}/commands/exhaust
+```
 
 Exemplo de telemetria:
 
-{ "temperature": 27.1, "humidity": 63.2, "luminosity": 820, "air_quality": 94 }
+```json
+{
+  "temperature": 27.1,
+  "humidity": 63.2,
+  "luminosity": 820,
+  "air_quality": 94
+}
+```
 
-🚧 Estado atual do desenvolvimento
+## Execução local
 
-Até o momento, a implementação foi iniciada pela infraestrutura e pelo núcleo básico da API.
+Crie o arquivo `.env` a partir do exemplo:
 
-Concluído
+```bash
+cp .env.example .env
+```
 
-Definição da arquitetura inicial;
+Preencha as variáveis do PostgreSQL e suba os serviços:
 
-Estrutura de pastas;
+```bash
+docker compose up -d --build
+```
 
-Docker Compose inicial;
+Serviços principais:
 
-Dockerfile do PHP;
+- Nginx / API: `http://localhost:8080`
+- PostgreSQL: porta `5432`
+- Mosquitto MQTT: porta `1883`
+- MQTT consumer: executado como serviço do Docker Compose
 
-Configuração inicial do Nginx;
+Para acompanhar a telemetria:
 
-Composer e autoload PSR-4;
+```bash
+docker compose logs -f mqtt_consumer
+```
 
-Classe Response.php.
+## Decisões de arquitetura
 
-Próximos passos
+A primeira versão do EcoSense foi mantida propositalmente simples.
 
-Criar Router.php;
+Redis e Kafka não fazem parte da V1. Eles só serão considerados se surgir uma necessidade concreta de cache, processamento distribuído ou alto volume de eventos.
 
-Criar arquivo de rotas api.php;
+A arquitetura atual é suficiente para o escopo:
 
-Criar public/index.php;
-
-Configurar .env;
-
-Subir os containers;
-
-Testar GET /api/health;
-
-Conectar PHP ao PostgreSQL;
-
-Criar as primeiras tabelas;
-
-Implementar endpoints de medições;
-
-Adicionar Mosquitto;
-
-Integrar ESP32 por MQTT;
-
-Criar dashboard Web;
-
-Integrar aplicativo iOS.
-
-🧠 Decisões de arquitetura
-
-A primeira versão do EcoSense será mantida propositalmente simples.
-
-Neste momento, Redis e Kafka não fazem parte da arquitetura.
-
-Eles só deverão ser adicionados caso surja uma necessidade concreta de:
-
-cache;
-
-grande volume de eventos;
-
-processamento assíncrono;
-
-mensageria distribuída;
-
-escalabilidade adicional.
-
-Para a primeira versão:
-
+```text
 ESP32 + MQTT + PHP + PostgreSQL + Web + iOS
+```
 
-é suficiente para atender ao escopo atual.
+## Segurança
 
-🔐 Segurança
+Credenciais locais ficam em `.env`, que não é versionado.
 
-Arquivos contendo credenciais não deverão ser enviados ao repositório.
+O arquivo `.env.example` documenta apenas as variáveis necessárias e pode ser mantido no repositório sem valores sensíveis.
 
-O arquivo:
+---
 
-.env
-
-deverá estar presente no .gitignore.
-
-Um arquivo:
-
-.env.example
-
-poderá ser disponibilizado sem valores sensíveis para documentar as variáveis necessárias.
-
-🌿 EcoSense
-
-Monitorar. Entender. Agir.
-
-Projeto de monitoramento ambiental utilizando sistemas embarcados, IoT, desenvolvimento Web, APIs e aplicações móveis.
+**EcoSense — Monitorar. Entender. Agir.**
