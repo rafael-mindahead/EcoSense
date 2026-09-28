@@ -13,6 +13,10 @@ use App\Controllers\ActuatorController;
 use App\Repositories\ActuatorCommandRepository;
 use App\Services\MqttService;
 
+use App\Repositories\SensorLimitRepository;
+use App\Repositories\AlertRepository;
+use App\Services\MeansurementService;
+
 
 $router->get('/api/health', function () {
 
@@ -48,17 +52,31 @@ $router->get('/api/database/health', function () {
 $router->get('/api/v1/meansurements/latest', function () {
 
     $connection = Database::connect();
-
     $repository =
-        new MeansurementRepository($connection);
+    new MeansurementRepository($connection);
 
     $deviceRepository =
         new DeviceRepository($connection);
 
-    $controller =
-        new MeansurementController($repository, $deviceRepository);
+    $sensorLimitRepository =
+        new SensorLimitRepository($connection);
 
-    $controller->latest();
+    $alertRepository =
+        new AlertRepository($connection);
+
+    $service =
+        new MeansurementService(
+            $repository,
+            $deviceRepository,
+            $sensorLimitRepository,
+            $alertRepository
+        );
+
+    $controller =
+        new MeansurementController(
+            $repository,
+            $service
+        );
 });
 
 
@@ -67,31 +85,61 @@ $router->get('/api/v1/meansurements', function () {
     $connection = Database::connect();
 
     $repository =
-        new MeansurementRepository($connection);
+    new MeansurementRepository($connection);
 
     $deviceRepository =
         new DeviceRepository($connection);
 
-    $controller =
-        new MeansurementController($repository, $deviceRepository);
+    $sensorLimitRepository =
+        new SensorLimitRepository($connection);
 
-    $controller->index();
+    $alertRepository =
+        new AlertRepository($connection);
+
+    $service =
+        new MeansurementService(
+            $repository,
+            $deviceRepository,
+            $sensorLimitRepository,
+            $alertRepository
+        );
+
+    $controller =
+        new MeansurementController(
+            $repository,
+            $service
+        );
 });
 
 
 $router->post('/api/v1/meansurements', function () {
 
     $connection = Database::connect();
-
     $repository =
         new MeansurementRepository($connection);
 
     $deviceRepository =
         new DeviceRepository($connection);
 
-    $controller =
-        new MeansurementController($repository, $deviceRepository);
+    $sensorLimitRepository =
+        new SensorLimitRepository($connection);
 
+    $alertRepository =
+        new AlertRepository($connection);
+
+    $service =
+        new MeansurementService(
+            $repository,
+            $deviceRepository,
+            $sensorLimitRepository,
+            $alertRepository
+        );
+
+    $controller =
+        new MeansurementController(
+            $repository,
+            $service
+        );
     $controller->store();
 });
 
@@ -124,7 +172,7 @@ $router->post('/api/v1/actuators/fan', function () {
     $controller =
         new ActuatorController(
             $repository,
-            $mqttl
+            $mqtt
         );
 
     $controller->control('fan');

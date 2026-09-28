@@ -8,6 +8,10 @@ use App\Repositories\DeviceRepository;
 use App\Repositories\ActuatorCommandRepository;
 use PhpMqtt\Client\MqttClient;
 
+use App\Repositories\SensorLimitRepository;
+use App\Repositories\AlertRepository;
+use App\Services\MeansurementService;
+
 
 // Configuração MQTT
 $host = getenv('MQTT_HOST') ?: 'mosquitto';
@@ -23,14 +27,19 @@ $clientId =
 // Banco
 $connection = Database::connect();
 
-$meansurementRepository =
-    new MeansurementRepository($connection);
+$sensorLimitRepository =
+    new SensorLimitRepository($connection);
 
-$deviceRepository =
-    new DeviceRepository($connection);
+$alertRepository =
+    new AlertRepository($connection);
 
-$actuatorRepository =
-    new ActuatorCommandRepository($connection);
+$meansurementService =
+    new MeansurementService(
+        $meansurementRepository,
+        $deviceRepository,
+        $sensorLimitRepository,
+        $alertRepository
+);
 
 
 // Cliente MQTT
@@ -59,7 +68,7 @@ $mqtt->subscribe(
         bool $retained,
         array $matchedWildcards
     ) use (
-        $meansurementRepository,
+        $meansurementService,
         $deviceRepository
     ) {
 
@@ -126,14 +135,12 @@ $mqtt->subscribe(
         $data['device_id'] =
             $deviceId;
 
+        $result =
+        $meansurementService
+        ->create($data);
 
         $meansurement =
-            $meansurementRepository
-                ->create($data);
-
-
-        $deviceRepository
-            ->markOnline($deviceId);
+        $result['meansurement'];
 
 
         echo
@@ -211,6 +218,14 @@ $mqtt->subscribe(
                 . PHP_EOL;
 
             return;
+        }
+        if (count($result['alerts']) > 0) {
+
+
+            echo
+            "Alertas gerados: "
+            .count($result['alerts'])
+            .PHP_EOL;
         }
 
 
