@@ -79,6 +79,8 @@ $router->get('/api/v1/meansurements/latest', function () {
             $repository,
             $service
         );
+
+    $controller->latest();
 });
 
 
@@ -111,6 +113,8 @@ $router->get('/api/v1/meansurements', function () {
             $repository,
             $service
         );
+
+    $controller->index();
 });
 
 
