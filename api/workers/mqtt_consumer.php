@@ -151,6 +151,12 @@ $mqtt->subscribe(
         $meansurement =
         $result['meansurement'];
 
+        if (count($result['alerts']) > 0) {
+            echo
+                "Alertas gerados: "
+                . count($result['alerts'])
+                . PHP_EOL;
+        }
 
         echo
             "Meansurement salva. ID: "
@@ -228,16 +234,6 @@ $mqtt->subscribe(
 
             return;
         }
-        if (count($result['alerts']) > 0) {
-
-
-            echo
-            "Alertas gerados: "
-            .count($result['alerts'])
-            .PHP_EOL;
-        }
-
-
         echo
             "Comando {$commandId} executado."
             . PHP_EOL;
