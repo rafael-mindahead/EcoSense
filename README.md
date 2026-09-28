@@ -289,6 +289,10 @@ Credenciais locais ficam em `.env`, que não é versionado.
 
 O arquivo `.env.example` documenta apenas as variáveis necessárias e pode ser mantido no repositório sem valores sensíveis.
 
+## Licença
+
+Este projeto é distribuído sob a licença MIT. Consulte o arquivo [LICENSE](LICENSE) para os termos completos.
+
 ---
 
 **EcoSense — Monitorar. Entender. Agir.**
