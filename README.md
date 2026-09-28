@@ -177,6 +177,73 @@ Exemplo de telemetria:
 }
 ```
 
+## API REST
+
+Endpoints implementados atualmente:
+
+| Método | Endpoint | Descrição |
+|---|---|---|
+| GET | `/api/health` | Verifica o estado da API |
+| GET | `/api/database/health` | Verifica a conexão com PostgreSQL |
+| GET | `/api/v1/meansurements/latest` | Retorna a última medição |
+| GET | `/api/v1/meansurements?limit=50` | Retorna o histórico de medições |
+| POST | `/api/v1/meansurements` | Registra uma medição e processa alertas |
+| GET | `/api/v1/devices` | Lista os dispositivos |
+| POST | `/api/v1/actuators/fan` | Envia comando para o ventilador |
+| POST | `/api/v1/actuators/exhaust` | Envia comando para o exaustor |
+| GET | `/api/v1/alerts` | Lista alertas |
+| POST | `/api/v1/alerts/resolve` | Resolve um alerta aberto |
+
+Exemplo de criação de medição:
+
+```bash
+curl -X POST http://localhost:8080/api/v1/meansurements \
+  -H "Content-Type: application/json" \
+  -d '{
+    "device_id": 1,
+    "temperature": 35,
+    "humidity": 60,
+    "luminosity": 800,
+    "air_quality": 90
+  }'
+```
+
+Quando uma métrica ultrapassa um limite configurado em `sensor_limits`, o `MeansurementService` cria automaticamente um registro em `alerts`.
+
+## Status do desenvolvimento
+
+### Concluído
+
+- infraestrutura Docker;
+- Nginx + PHP-FPM;
+- conexão com PostgreSQL;
+- migrations principais;
+- API de medições;
+- listagem de devices;
+- Mosquitto;
+- consumer MQTT;
+- persistência de telemetria;
+- atualização de `last_seen`;
+- controle MQTT de fan e exhaust;
+- persistência dos comandos;
+- ACK de execução dos atuadores;
+- limites ambientais;
+- geração automática de alertas;
+- listagem e resolução de alertas.
+
+### Próximos passos
+
+- consulta individual de device;
+- cálculo automático de device online/offline;
+- filtros por device e período no histórico;
+- validações de faixa das métricas;
+- endpoints de configuração de limites;
+- padronização de erros;
+- dashboard Web com Chart.js;
+- integração física do ESP32;
+- sensores reais;
+- aplicação iOS.
+
 ## Execução local
 
 Crie o arquivo `.env` a partir do exemplo:
