@@ -27,6 +27,15 @@ $clientId =
 // Banco
 $connection = Database::connect();
 
+$meansurementRepository =
+    new MeansurementRepository($connection);
+
+$deviceRepository =
+    new DeviceRepository($connection);
+
+$actuatorRepository =
+    new ActuatorCommandRepository($connection);
+
 $sensorLimitRepository =
     new SensorLimitRepository($connection);
 
