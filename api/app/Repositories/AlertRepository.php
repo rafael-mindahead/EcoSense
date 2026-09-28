@@ -72,4 +72,30 @@ class AlertRepository
             PDO::FETCH_ASSOC
         );
     }
+    public function resolve(int $id): ?array
+    {
+        $sql = "
+            UPDATE alerts
+            SET
+                status = 'resolved',
+                resolved_at = CURRENT_TIMESTAMP
+            WHERE id = :id
+            AND status = 'open'
+            RETURNING *
+        ";
+
+        $statement =
+            $this->connection->prepare($sql);
+
+        $statement->execute([
+            ':id' => $id
+        ]);
+
+        $alert =
+            $statement->fetch(
+                PDO::FETCH_ASSOC
+            );
+
+        return $alert ?: null;
+    }
 }

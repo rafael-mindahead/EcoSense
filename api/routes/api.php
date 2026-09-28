@@ -17,6 +17,8 @@ use App\Repositories\SensorLimitRepository;
 use App\Repositories\AlertRepository;
 use App\Services\MeansurementService;
 
+use App\Controllers\AlertController;
+
 
 $router->get('/api/health', function () {
 
@@ -197,4 +199,30 @@ $router->post('/api/v1/actuators/exhaust', function () {
         );
 
     $controller->control('exhaust');
+});
+$router->get('/api/v1/alerts', function () {
+
+    $connection = Database::connect();
+
+    $repository =
+        new AlertRepository($connection);
+
+    $controller =
+        new AlertController($repository);
+
+    $controller->index();
+});
+
+
+$router->post('/api/v1/alerts/resolve', function () {
+
+    $connection = Database::connect();
+
+    $repository =
+        new AlertRepository($connection);
+
+    $controller =
+        new AlertController($repository);
+
+    $controller->resolve();
 });
