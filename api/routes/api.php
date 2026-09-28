@@ -124,7 +124,7 @@ $router->post('/api/v1/actuators/fan', function () {
     $controller =
         new ActuatorController(
             $repository,
-            $mqtt
+            $mqttl
         );
 
     $controller->control('fan');
