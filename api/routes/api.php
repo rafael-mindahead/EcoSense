@@ -3,6 +3,8 @@
 use App\Core\Response;
 use App\Config\Database;
 
+
+use App\Controllers\SensorLimitController;
 use App\Controllers\MeansurementController;
 use App\Repositories\MeansurementRepository;
 
@@ -18,6 +20,7 @@ use App\Repositories\AlertRepository;
 use App\Services\MeansurementService;
 
 use App\Controllers\AlertController;
+
 
 
 $router->get('/api/health', function () {
@@ -229,4 +232,59 @@ $router->post('/api/v1/alerts/resolve', function () {
         new AlertController($repository);
 
     $controller->resolve();
+});
+$router->get('/api/v1/sensor-limits', function () {
+
+    $connection =
+        Database::connect();
+
+    $repository =
+        new SensorLimitRepository(
+            $connection
+        );
+
+    $controller =
+        new SensorLimitController(
+            $repository
+        );
+
+    $controller->index();
+});
+
+
+$router->post('/api/v1/sensor-limits', function () {
+
+    $connection =
+        Database::connect();
+
+    $repository =
+        new SensorLimitRepository(
+            $connection
+        );
+
+    $controller =
+        new SensorLimitController(
+            $repository
+        );
+
+    $controller->store();
+});
+
+
+$router->post('/api/v1/sensor-limits/update', function () {
+
+    $connection =
+        Database::connect();
+
+    $repository =
+        new SensorLimitRepository(
+            $connection
+        );
+
+    $controller =
+        new SensorLimitController(
+            $repository
+        );
+
+    $controller->update();
 });
