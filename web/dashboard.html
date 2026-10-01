@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>EcoSense | Dashboard</title>
+
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+
+    <div class="app-container">
+
+        <!-- MENU LATERAL -->
+        <aside class="sidebar">
+
+            <div class="logo-area">
+                <div class="logo-icon">🌿</div>
+
+                <div>
+                    <h1>EcoSense</h1>
+                    <span>Monitoramento Ambiental</span>
+                </div>
+            </div>
+
+            <nav class="menu">
+
+                <a href="dashboard.html" class="menu-item active">
+                    <span>🏠</span>
+                    Dashboard
+                </a>
+
+                <a href="historico.html" class="menu-item">
+                    <span>📊</span>
+                    Histórico
+                </a>
+
+                <a href="alertas.html" class="menu-item">
+                    <span>🔔</span>
+                    Alertas
+                    <span class="alert-badge" id="alert-count">0</span>
+                </a>
+
+                <a href="dispositivos.html" class="menu-item">
+                    <span>⚙️</span>
+                    Dispositivos
+                </a>
+
+                <a href="#" class="menu-item">
+                    <span>🌀</span>
+                    Controle
+                </a>
+
+                <a href="configuracoes.html" class="menu-item">
+                    <span>🔧</span>
+                    Configurações
+                </a>
+
+            </nav>
+
+            <div class="sidebar-footer">
+                <p>Tecnologia para um ambiente mais inteligente.</p>
+            </div>
+
+        </aside>
+
+
+        <!-- CONTEÚDO PRINCIPAL -->
+        <main class="main-content">
+
+            <!-- TOPO -->
+            <header class="topbar">
+
+                <div>
+                    <h2>Olá, bem-vinda ao EcoSense! 🌱</h2>
+                    <p>
+                        Acompanhe em tempo real as condições do ambiente.
+                    </p>
+                </div>
+
+                <div class="system-status">
+                    <span class="status-dot"></span>
+
+                    <div>
+                        <strong>API Online</strong>
+                        <small>Sistema operacional</small>
+                    </div>
+                </div>
+
+            </header>
+
+
+            <!-- CARDS DOS SENSORES -->
+            <section class="sensor-grid">
+
+                <article class="sensor-card temperature-card">
+
+                    <div class="sensor-header">
+                        <span class="sensor-icon">🌡️</span>
+
+                        <h3>Temperatura</h3>
+                    </div>
+
+                    <div
+                        class="sensor-value"
+                        id="temperature"
+                    >
+                        -- °C
+                    </div>
+
+                    <p class="sensor-description">
+                        Temperatura atual do ambiente
+                    </p>
+
+                </article>
+
+
+                <article class="sensor-card humidity-card">
+
+                    <div class="sensor-header">
+                        <span class="sensor-icon">💧</span>
+
+                        <h3>Umidade</h3>
+                    </div>
+
+                    <div
+                        class="sensor-value"
+                        id="humidity"
+                    >
+                        -- %
+                    </div>
+
+                    <p class="sensor-description">
+                        Umidade relativa do ar
+                    </p>
+
+                </article>
+
+
+                <article class="sensor-card luminosity-card">
+
+                    <div class="sensor-header">
+                        <span class="sensor-icon">☀️</span>
+
+                        <h3>Luminosidade</h3>
+                    </div>
+
+                    <div
+                        class="sensor-value"
+                        id="luminosity"
+                    >
+                        -- lx
+                    </div>
+
+                    <p class="sensor-description">
+                        Intensidade luminosa
+                    </p>
+
+                </article>
+
+
+                <article class="sensor-card air-card">
+
+                    <div class="sensor-header">
+                        <span class="sensor-icon">🍃</span>
+
+                        <h3>Qualidade do ar</h3>
+                    </div>
+
+                    <div
+                        class="sensor-value"
+                        id="air-quality"
+                    >
+                        --
+                    </div>
+
+                    <p class="sensor-description">
+                        Índice atual da qualidade do ar
+                    </p>
+
+                </article>
+
+            </section>
+
+
+            <!-- INFORMAÇÕES GERAIS -->
+            <section class="info-grid">
+
+                <!-- ÚLTIMA MEDIÇÃO -->
+                <article class="info-card">
+
+                    <div class="info-icon">🕒</div>
+
+                    <div>
+                        <h3>Última medição</h3>
+
+                        <p id="last-update">
+                            Aguardando dados...
+                        </p>
+                    </div>
+
+                </article>
+
+
+                <!-- DISPOSITIVO -->
+                <article class="info-card device-card">
+
+                    <div class="device-icon">🧩</div>
+
+                    <div>
+
+                        <h3 id="device-name">
+                            Dispositivo
+                        </h3>
+
+                        <p>
+                            Status:
+                            <span
+                                id="device-status"
+                                class="device-status"
+                            >
+                                Carregando...
+                            </span>
+                        </p>
+
+                        <small id="device-code">
+                            Código: --
+                        </small>
+
+                    </div>
+
+                </article>
+
+
+                <!-- ALERTAS -->
+                <article class="info-card alert-card">
+
+                    <div class="alert-icon">🔔</div>
+
+                    <div>
+                        <h3>Alertas ativos</h3>
+
+                        <p>
+                            <strong id="active-alerts">
+                                0
+                            </strong>
+                            alerta(s)
+                        </p>
+                    </div>
+
+                </article>
+
+            </section>
+
+
+            <!-- GRÁFICO / HISTÓRICO -->
+            <section class="content-grid">
+
+                <article class="panel chart-panel">
+
+                    <div class="panel-header">
+
+                        <div>
+                            <h3>
+                                Variação dos sensores
+                            </h3>
+
+                            <p>
+                                Histórico recente das medições
+                            </p>
+                        </div>
+
+                        <select id="chart-filter">
+                            <option value="temperature">
+                                Temperatura
+                            </option>
+
+                            <option value="humidity">
+                                Umidade
+                            </option>
+
+                            <option value="luminosity">
+                                Luminosidade
+                            </option>
+
+                            <option value="air_quality">
+                                Qualidade do ar
+                            </option>
+                        </select>
+
+                    </div>
+
+                    <div class="chart-placeholder">
+                        <p>
+                            📈 O gráfico será conectado ao Chart.js
+                        </p>
+                    </div>
+
+                </article>
+
+
+                <!-- STATUS DO DISPOSITIVO -->
+                <article class="panel">
+
+                    <div class="panel-header">
+                        <h3>Status do dispositivo</h3>
+                    </div>
+
+                    <div class="device-details">
+
+                        <div class="device-image-placeholder">
+                            🌱
+                        </div>
+
+                        <div>
+
+                            <h4 id="device-panel-name">
+                                ESP32
+                            </h4>
+
+                            <p id="device-panel-status">
+                                Status: --
+                            </p>
+
+                            <p id="device-last-seen">
+                                Última comunicação: --
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                </article>
+
+            </section>
+
+
+            <!-- CONTROLE DO AMBIENTE -->
+            <section class="content-grid">
+
+                <article class="panel">
+
+                    <div class="panel-header">
+                        <h3>Controle do ambiente</h3>
+                    </div>
+
+                    <div class="control-grid">
+
+                        <!-- VENTILADOR -->
+                        <div class="control-card">
+
+                            <div>
+                                <span class="control-icon">
+                                    🌀
+                                </span>
+
+                                <h4>Ventilador</h4>
+                            </div>
+
+                            <p>
+                                Estado:
+                                <span id="fan-status">
+                                    --
+                                </span>
+                            </p>
+
+                            <div class="control-buttons">
+
+                                <button
+                                    type="button"
+                                    id="fan-on"
+                                    class="btn btn-primary"
+                                >
+                                    Ligar
+                                </button>
+
+                                <button
+                                    type="button"
+                                    id="fan-off"
+                                    class="btn btn-secondary"
+                                >
+                                    Desligar
+                                </button>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- EXAUSTOR -->
+                        <div class="control-card">
+
+                            <div>
+                                <span class="control-icon">
+                                    💨
+                                </span>
+
+                                <h4>Exaustor</h4>
+                            </div>
+
+                            <p>
+                                Estado:
+                                <span id="exhaust-status">
+                                    --
+                                </span>
+                            </p>
+
+                            <div class="control-buttons">
+
+                                <button
+                                    type="button"
+                                    id="exhaust-on"
+                                    class="btn btn-primary"
+                                >
+                                    Ligar
+                                </button>
+
+                                <button
+                                    type="button"
+                                    id="exhaust-off"
+                                    class="btn btn-secondary"
+                                >
+                                    Desligar
+                                </button>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </article>
+
+
+                <!-- ALERTAS RECENTES -->
+                <article class="panel">
+
+                    <div class="panel-header">
+
+                        <div>
+                            <h3>Alertas recentes</h3>
+                        </div>
+
+                        <a href="alertas.html">
+                            Ver todos
+                        </a>
+
+                    </div>
+
+                    <div
+                        class="alerts-list"
+                        id="alerts-list"
+                    >
+
+                        <p class="empty-message">
+                            Nenhum alerta carregado.
+                        </p>
+
+                    </div>
+
+                </article>
+
+            </section>
+
+        </main>
+
+    </div>
+
+
+    <script
+        type="module"
+        src="js/dashboard.js"
+    ></script>
+
+</body>
+
+</html>
