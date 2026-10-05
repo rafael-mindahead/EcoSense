@@ -4,7 +4,7 @@ EcoSense é um sistema ciber-físico de monitoramento ambiental desenvolvido com
 
 O projeto monitora variáveis ambientais, armazena medições, avalia limites configurados, gera alertas e envia comandos para atuadores como ventiladores e exaustores.
 
-> Status: em desenvolvimento. A infraestrutura, a API REST, o fluxo MQTT, os alertas e o controle de atuadores já estão implementados. A integração com o ESP32 físico depende da conexão USB adequada e será retomada em seguida.
+> Status: em desenvolvimento. A infraestrutura, a API REST, o fluxo MQTT, alertas, controle de atuadores e a integração inicial com o ESP32 físico já estão implementados. O ESP32 publica telemetria simulada por MQTT; a próxima etapa física é substituir a simulação pelos sensores reais.
 
 ## Objetivo
 
@@ -79,6 +79,7 @@ pending → sent → executed
 - C++
 - Wi-Fi
 - MQTT
+- PlatformIO
 
 ### Backend
 
@@ -97,7 +98,7 @@ pending → sent → executed
 - Eclipse Mosquitto
 - php-mqtt/client
 
-### Front-end planejado
+### Front-end
 
 - HTML
 - CSS
@@ -122,25 +123,51 @@ pending → sent → executed
 ```text
 EcoSense/
 ├── api/
-│   ├── app/
-│   │   ├── Config/
-│   │   ├── Controllers/
-│   │   ├── Core/
-│   │   ├── Repositories/
-│   │   └── Services/
-│   ├── public/
-│   ├── routes/
-│   └── workers/
 ├── database/
-│   └── migrations/
 ├── docker/
-│   ├── mosquitto/
-│   ├── nginx/
-│   └── php/
-├── Docs/
+├── esp32/
+│   ├── include/
+│   ├── src/
+│   └── platformio.ini
+├── tests/
 ├── .env.example
 ├── docker-compose.yml
 └── README.md
+```
+
+## ESP32
+
+O firmware fica em `esp32/` e utiliza PlatformIO com o framework Arduino.
+
+A configuração local de Wi-Fi deve ser criada a partir de:
+
+```text
+esp32/include/secrets.example.h
+```
+
+Copie para:
+
+```text
+esp32/include/secrets.h
+```
+
+e preencha apenas localmente. Esse arquivo é ignorado pelo Git.
+
+O firmware atual publica telemetria simulada no tópico:
+
+```text
+ecosense/device/1/telemetry
+```
+
+Exemplo:
+
+```json
+{
+  "temperature": 27.1,
+  "humidity": 63.2,
+  "luminosity": 820,
+  "air_quality": 94
+}
 ```
 
 ## Banco de dados
@@ -157,7 +184,7 @@ O projeto mantém a grafia `meansurements` na API e no banco por compatibilidade
 
 ## MQTT
 
-Tópicos atualmente utilizados:
+Tópicos utilizados:
 
 ```text
 ecosense/device/+/telemetry
@@ -166,20 +193,9 @@ ecosense/device/{id}/commands/fan
 ecosense/device/{id}/commands/exhaust
 ```
 
-Exemplo de telemetria:
-
-```json
-{
-  "temperature": 27.1,
-  "humidity": 63.2,
-  "luminosity": 820,
-  "air_quality": 94
-}
-```
-
 ## API REST
 
-Endpoints implementados atualmente:
+Endpoints principais:
 
 | Método | Endpoint | Descrição |
 |---|---|---|
@@ -193,77 +209,33 @@ Endpoints implementados atualmente:
 | POST | `/api/v1/actuators/exhaust` | Envia comando para o exaustor |
 | GET | `/api/v1/alerts` | Lista alertas |
 | POST | `/api/v1/alerts/resolve` | Resolve um alerta aberto |
+| GET | `/api/v1/sensor-limits` | Lista limites dos sensores |
+| POST | `/api/v1/sensor-limits` | Cria limite de sensor |
+| POST | `/api/v1/sensor-limits/update` | Atualiza limite de sensor |
 
-Exemplo de criação de medição:
+## Testes
+
+A pasta `tests/` contém testes de integração da API e do fluxo MQTT.
+
+Execute:
 
 ```bash
-curl -X POST http://localhost:8080/api/v1/meansurements \
-  -H "Content-Type: application/json" \
-  -d '{
-    "device_id": 1,
-    "temperature": 35,
-    "humidity": 60,
-    "luminosity": 800,
-    "air_quality": 90
-  }'
+./tests/run.sh
 ```
-
-Quando uma métrica ultrapassa um limite configurado em `sensor_limits`, o `MeansurementService` cria automaticamente um registro em `alerts`.
-
-## Status do desenvolvimento
-
-### Concluído
-
-- infraestrutura Docker;
-- Nginx + PHP-FPM;
-- conexão com PostgreSQL;
-- migrations principais;
-- API de medições;
-- listagem de devices;
-- Mosquitto;
-- consumer MQTT;
-- persistência de telemetria;
-- atualização de `last_seen`;
-- controle MQTT de fan e exhaust;
-- persistência dos comandos;
-- ACK de execução dos atuadores;
-- limites ambientais;
-- geração automática de alertas;
-- listagem e resolução de alertas.
-
-### Próximos passos
-
-- consulta individual de device;
-- cálculo automático de device online/offline;
-- filtros por device e período no histórico;
-- validações de faixa das métricas;
-- endpoints de configuração de limites;
-- padronização de erros;
-- dashboard Web com Chart.js;
-- integração física do ESP32;
-- sensores reais;
-- aplicação iOS.
 
 ## Execução local
 
-Crie o arquivo `.env` a partir do exemplo:
+Crie o arquivo `.env`:
 
 ```bash
 cp .env.example .env
 ```
 
-Preencha as variáveis do PostgreSQL e suba os serviços:
+Suba os serviços:
 
 ```bash
 docker compose up -d --build
 ```
-
-Serviços principais:
-
-- Nginx / API: `http://localhost:8080`
-- PostgreSQL: porta `5432`
-- Mosquitto MQTT: porta `1883`
-- MQTT consumer: executado como serviço do Docker Compose
 
 Para acompanhar a telemetria:
 
@@ -271,27 +243,42 @@ Para acompanhar a telemetria:
 docker compose logs -f mqtt_consumer
 ```
 
-## Decisões de arquitetura
+## Status do desenvolvimento
 
-A primeira versão do EcoSense foi mantida propositalmente simples.
+### Concluído
 
-Redis e Kafka não fazem parte da V1. Eles só serão considerados se surgir uma necessidade concreta de cache, processamento distribuído ou alto volume de eventos.
+- infraestrutura Docker;
+- API REST;
+- PostgreSQL e migrations;
+- Mosquitto;
+- consumer MQTT;
+- persistência de telemetria;
+- limites ambientais e alertas;
+- controle de atuadores e ACK;
+- validação de medições;
+- testes de integração iniciais;
+- dashboard Web inicial;
+- firmware ESP32 com Wi-Fi e MQTT;
+- publicação de telemetria simulada a partir do ESP32 físico.
 
-A arquitetura atual é suficiente para o escopo:
+### Próximos passos
 
-```text
-ESP32 + MQTT + PHP + PostgreSQL + Web + iOS
-```
+- integrar sensores reais ao ESP32;
+- consulta individual e status automático de devices;
+- filtros de histórico;
+- expandir testes automatizados;
+- finalizar dashboard Web;
+- aplicação iOS.
 
 ## Segurança
 
-Credenciais locais ficam em `.env`, que não é versionado.
+Credenciais locais ficam fora do versionamento.
 
-O arquivo `.env.example` documenta apenas as variáveis necessárias e pode ser mantido no repositório sem valores sensíveis.
+Arquivos como `.env` e `esp32/include/secrets.h` são ignorados. Apenas arquivos de exemplo sem valores sensíveis são versionados.
 
 ## Licença
 
-Este projeto é distribuído sob a licença MIT. Consulte o arquivo [LICENSE](LICENSE) para os termos completos.
+Este projeto é distribuído sob a licença MIT. Consulte o arquivo [LICENSE](LICENSE).
 
 ---
 

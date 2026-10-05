@@ -7,3 +7,7 @@ docker/mosquitto/data/
 
 .pio/
 .vscode/
+
+esp32/.pio/
+esp32/.vscode/
+esp32/include/secrets.h

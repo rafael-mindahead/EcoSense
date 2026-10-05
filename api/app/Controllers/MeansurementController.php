@@ -12,7 +12,7 @@ class MeansurementController
     public function __construct(
         private MeansurementRepository $repository,
         private MeansurementService $service,
-        private MeansuremnentValidator $validator
+        private MeansurementValidator $validator
     ) {
     }
 
@@ -91,18 +91,21 @@ class MeansurementController
             $errors = $this->validator->validate($body);
 
             if (!empty($errors)) {
+
                 Response::json([
                     'error' => 'validation failed',
                     'details' => $errors
                 ], 422);
+
                 return;
             }
+
             $result = $this->service->create($body);
 
             Response::json([
                 'message' => 'Meansurement criado',
                 'data' => $result['meansurement'],
-                'alerts'=> $result['alerts']
+                'alerts' => $result['alerts']
             ], 201);
 
         } catch (\Throwable $error) {
