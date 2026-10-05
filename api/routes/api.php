@@ -21,6 +21,8 @@ use App\Services\MeansurementService;
 
 use App\Controllers\AlertController;
 
+use App\Validators\MeansurementValidator;
+
 
 
 $router->get('/api/health', function () {
@@ -76,11 +78,13 @@ $router->get('/api/v1/meansurements/latest', function () {
             $sensorLimitRepository,
             $alertRepository
         );
+    $meansurementValidator = new MeansurementValidator();
 
     $controller =
         new MeansurementController(
             $repository,
-            $service
+            $service,
+            $meansurementValidator
         );
 
     $controller->latest();
@@ -110,11 +114,14 @@ $router->get('/api/v1/meansurements', function () {
             $sensorLimitRepository,
             $alertRepository
         );
+    $meansurementValidator = new MeansurementValidator();
+
 
     $controller =
         new MeansurementController(
             $repository,
-            $service
+            $service,
+            $meansurementValidator
         );
 
     $controller->index();
@@ -143,11 +150,13 @@ $router->post('/api/v1/meansurements', function () {
             $sensorLimitRepository,
             $alertRepository
         );
+    $meansurementValidator = new MeansurementValidator();
 
     $controller =
         new MeansurementController(
             $repository,
-            $service
+            $service,
+            $meansurementValidator
         );
     $controller->store();
 });

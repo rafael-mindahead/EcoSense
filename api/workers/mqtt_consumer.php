@@ -1,7 +1,7 @@
 <?php
 
 require_once __DIR__ . '/../vendor/autoload.php';
-
+use App\Validators\MeansurementValidator;
 use App\Config\Database;
 use App\Repositories\MeansurementRepository;
 use App\Repositories\DeviceRepository;
@@ -11,6 +11,7 @@ use PhpMqtt\Client\MqttClient;
 use App\Repositories\SensorLimitRepository;
 use App\Repositories\AlertRepository;
 use App\Services\MeansurementService;
+
 
 
 // Configuração MQTT
@@ -32,6 +33,8 @@ $meansurementRepository =
 
 $deviceRepository =
     new DeviceRepository($connection);
+
+$meansurementValidator = new MeansurementValidator();
 
 $actuatorRepository =
     new ActuatorCommandRepository($connection);
@@ -61,9 +64,9 @@ $mqtt = new MqttClient(
 $mqtt->connect();
 
 
-// ===============================
+
 // TELEMETRIA
-// ===============================
+
 
 $telemetryTopic =
     'ecosense/device/+/telemetry';
@@ -78,7 +81,7 @@ $mqtt->subscribe(
         array $matchedWildcards
     ) use (
         $meansurementService,
-        $deviceRepository
+        $meansurementValidator
     ) {
 
         echo "Mensagem recebida: {$message}"
@@ -143,6 +146,21 @@ $mqtt->subscribe(
 
         $data['device_id'] =
             $deviceId;
+
+        $errors = $meansurementValidator->validate($data);
+
+        if (!empty($errors)) {
+
+            echo
+                "Telemetria invalida: "
+                . implode(
+                    ', ',
+                    $errors
+                )
+                . PHP_EOL;
+
+            return;
+        }
 
         $result =
         $meansurementService

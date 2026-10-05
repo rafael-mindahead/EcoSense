@@ -5,12 +5,14 @@ namespace App\Controllers;
 use App\Core\Response;
 use App\Repositories\MeansurementRepository;
 use App\Services\MeansurementService;
+use App\Validators\MeansurementValidator;
 
 class MeansurementController
 {
     public function __construct(
         private MeansurementRepository $repository,
-        private MeansurementService $service
+        private MeansurementService $service,
+        private MeansuremnentValidator $validator
     ) {
     }
 
@@ -86,24 +88,14 @@ class MeansurementController
                 return;
             }
 
-            $requiredFields = [
-                'device_id',
-                'temperature',
-                'humidity',
-                'luminosity',
-                'air_quality'
-            ];
+            $errors = $this->validator->validate($body);
 
-            foreach ($requiredFields as $field) {
-
-                if (!array_key_exists($field, $body)) {
-
-                    Response::json([
-                        'error' => "Field {$field} is required"
-                    ], 422);
-
-                    return;
-                }
+            if (!empty($errors)) {
+                Response::json([
+                    'error' => 'validation failed',
+                    'details' => $errors
+                ], 422);
+                return;
             }
             $result = $this->service->create($body);
 
