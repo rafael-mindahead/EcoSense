@@ -3,12 +3,12 @@
 namespace App\Controllers;
 
 use App\Core\Response;
-use App\Repositories\DeviceRepository;
+use App\Services\DeviceService;
 
 class DeviceController
 {
     public function __construct(
-        private DeviceRepository $repository
+        private DeviceService $service
     ) {
     }
 
@@ -16,21 +16,20 @@ class DeviceController
     {
         try {
 
-            $devices = $this->repository->findAll();
-
-            Response::json([
-                'count' => count($devices),
-                'data' => $devices
-            ]);
+            Response::json(
+                $this->service->list()
+            );
 
         } catch (\Throwable $error) {
 
             Response::json([
                 'status' => 'error',
-                'message' => $error->getMessage()
+                'message' =>
+                    $error->getMessage()
             ], 500);
         }
     }
+
     public function show(): void
     {
         try {
@@ -38,40 +37,39 @@ class DeviceController
             if (!isset($_GET['id'])) {
 
                 Response::json([
-                    'error' => 'id is required'
-                ], 422);
-
-                return;
-            }
-
-            $deviceId =
-                (int) $_GET['id'];
-
-            if ($deviceId <= 0) {
-
-                Response::json([
-                    'error' => 'invalid device id'
+                    'error' =>
+                        'id is required'
                 ], 422);
 
                 return;
             }
 
             $device =
-                $this->repository
-                    ->findById($deviceId);
-
-            if (!$device) {
-
-                Response::json([
-                    'error' => 'device not found'
-                ], 404);
-
-                return;
-            }
+                $this->service->getById(
+                    $_GET['id']
+                );
 
             Response::json([
                 'data' => $device
             ]);
+
+        } catch (
+            \InvalidArgumentException $error
+        ) {
+
+            Response::json([
+                'error' =>
+                    $error->getMessage()
+            ], 422);
+
+        } catch (
+            \RuntimeException $error
+        ) {
+
+            Response::json([
+                'error' =>
+                    $error->getMessage()
+            ], 404);
 
         } catch (\Throwable $error) {
 

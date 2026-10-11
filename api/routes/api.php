@@ -22,6 +22,7 @@ use App\Services\MeansurementService;
 use App\Controllers\AlertController;
 
 use App\Validators\MeansurementValidator;
+use App\Services\DeviceService;
 
 
 
@@ -168,15 +169,18 @@ $router->get('/api/v1/devices', function () {
     $repository =
         new DeviceRepository($connection);
 
+    $service = new DeviceService($repository);
+
     $controller =
-        new DeviceController($repository);
+        new DeviceController($service);
 
     $controller->index();
 });
 $router->get('/api/v1/devices/show', function (){
     $connection = Database::connect();
     $repository = new DeviceRepository($connection);
-    $controller = new DeviceController($repository);
+    $service = new DeviceService($repository);
+    $controller = new DeviceController($service);
     $controller->show();
 });
 
