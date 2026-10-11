@@ -174,6 +174,12 @@ $router->get('/api/v1/devices', function () {
 
     $controller->index();
 });
+$router->get('/api/v1/devices/show', function (){
+    $connection = Database::connect();
+    $repository = new DeviceRepository($connection);
+    $controller = new DeviceController($repository);
+    $controller->show();
+});
 
 $router->post('/api/v1/actuators/fan', function () {
 
