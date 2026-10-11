@@ -11,3 +11,5 @@ docker/mosquitto/data/
 esp32/.pio/
 esp32/.vscode/
 esp32/include/secrets.h
+
+*.code-workspace
