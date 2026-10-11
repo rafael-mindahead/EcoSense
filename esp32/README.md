@@ -13,6 +13,9 @@ Firmware do ESP32 responsável por conectar o dispositivo ao Wi-Fi e publicar te
 pio run
 pio run --target upload
 pio device monitor
+~/.platformio/penv/bin/pio run
+~/.platformio/penv/bin/pio run --target upload
+~/.platformio/penv/bin/pio device monitor
 ```
 
 O arquivo `include/secrets.h` contém credenciais locais e não deve ser versionado.
