@@ -2,9 +2,9 @@
 
 EcoSense é um sistema ciber-físico de monitoramento ambiental desenvolvido com ESP32, MQTT, PHP, PostgreSQL, Docker e interfaces Web/iOS.
 
-O projeto monitora variáveis ambientais, armazena medições, avalia limites configurados, gera alertas e envia comandos para atuadores como ventiladores e exaustores.
+O projeto monitora variáveis ambientais, armazena medições, acompanha o estado dos dispositivos, avalia limites configurados, gera alertas e envia comandos para atuadores como ventiladores e exaustores.
 
-> Status: em desenvolvimento. A infraestrutura, a API REST, o fluxo MQTT, alertas, controle de atuadores e a integração inicial com o ESP32 físico já estão implementados. O ESP32 publica telemetria simulada por MQTT; a próxima etapa física é substituir a simulação pelos sensores reais.
+> **Status atual:** infraestrutura, API REST, fluxo MQTT, PostgreSQL, telemetria do ESP32 físico, histórico filtrável, status dinâmico de devices, alertas, limites ambientais, controle de atuadores e testes de integração já estão implementados. Os sensores ainda são simulados no firmware.
 
 ## Objetivo
 
@@ -16,7 +16,7 @@ A solução foi projetada para:
 - monitorar luminosidade;
 - monitorar qualidade do ar;
 - manter histórico de medições;
-- acompanhar o estado dos dispositivos;
+- acompanhar dispositivos online/offline;
 - gerar alertas a partir de limites ambientais;
 - enviar comandos para ventiladores e exaustores;
 - disponibilizar dados por API REST;
@@ -35,6 +35,7 @@ Mosquitto
 MQTT Consumer (PHP)
   ↓
 MeansurementService
+  ├── MeansurementValidator
   ├── MeansurementRepository
   ├── DeviceRepository
   ├── SensorLimitRepository
@@ -65,11 +66,43 @@ Relé
 Ventilador / Exaustor
 ```
 
-O ciclo de comando também possui confirmação por ACK:
+O ciclo de comando possui confirmação por ACK:
 
 ```text
 pending → sent → executed
 ```
+
+## MCS — Maximum Create Service
+
+O projeto segue o conceito **MCS (Maximum Create Service)**: concentrar regras de negócio na camada de serviços antes de finalizar Web e Mobile.
+
+A ideia é manter as interfaces finas e reutilizar as mesmas regras independentemente da origem da requisição:
+
+```text
+REST ─────┐
+          │
+MQTT ─────┼──→ Service Layer → Repository → PostgreSQL
+          │
+iOS ──────┘
+```
+
+Responsabilidades:
+
+```text
+Controller → entrada e resposta HTTP
+Service    → regras de negócio
+Repository → persistência e consultas SQL
+Worker     → adaptação MQTT
+```
+
+### Status MCS
+
+- `MeansurementService` — concluído;
+- `DeviceService` — concluído;
+- `SensorLimitService` — próximo;
+- `AlertService` — pendente;
+- `ActuatorService` — pendente;
+- `MqttService` — implementado, revisão final pendente.
 
 ## Tecnologias
 
@@ -123,6 +156,13 @@ pending → sent → executed
 ```text
 EcoSense/
 ├── api/
+│   ├── app/
+│   │   ├── Controllers/
+│   │   ├── Repositories/
+│   │   ├── Services/
+│   │   └── Validators/
+│   ├── routes/
+│   └── workers/
 ├── database/
 ├── docker/
 ├── esp32/
@@ -130,6 +170,7 @@ EcoSense/
 │   ├── src/
 │   └── platformio.ini
 ├── tests/
+├── web/
 ├── .env.example
 ├── docker-compose.yml
 └── README.md
@@ -137,23 +178,23 @@ EcoSense/
 
 ## ESP32
 
-O firmware fica em `esp32/` e utiliza PlatformIO com o framework Arduino.
+O firmware fica em `esp32/` e utiliza PlatformIO com framework Arduino.
 
-A configuração local de Wi-Fi deve ser criada a partir de:
+Crie a configuração local a partir de:
 
 ```text
 esp32/include/secrets.example.h
 ```
 
-Copie para:
+copiando para:
 
 ```text
 esp32/include/secrets.h
 ```
 
-e preencha apenas localmente. Esse arquivo é ignorado pelo Git.
+O arquivo `secrets.h` é local e não deve ser versionado.
 
-O firmware atual publica telemetria simulada no tópico:
+O firmware atual publica telemetria simulada em:
 
 ```text
 ecosense/device/1/telemetry
@@ -170,6 +211,8 @@ Exemplo:
 }
 ```
 
+Quando os sensores físicos forem conectados, a geração simulada será substituída pelas leituras reais sem alterar o restante do pipeline.
+
 ## Banco de dados
 
 Entidades implementadas:
@@ -184,7 +227,7 @@ O projeto mantém a grafia `meansurements` na API e no banco por compatibilidade
 
 ## MQTT
 
-Tópicos utilizados:
+Tópicos principais:
 
 ```text
 ecosense/device/+/telemetry
@@ -193,31 +236,54 @@ ecosense/device/{id}/commands/fan
 ecosense/device/{id}/commands/exhaust
 ```
 
-## API REST
+O consumer processa cada telemetria válida uma única vez, reutilizando o mesmo `MeansurementService` usado pela API REST.
 
-Endpoints principais:
+## API REST
 
 | Método | Endpoint | Descrição |
 |---|---|---|
-| GET | `/api/health` | Verifica o estado da API |
-| GET | `/api/database/health` | Verifica a conexão com PostgreSQL |
-| GET | `/api/v1/meansurements/latest` | Retorna a última medição |
-| GET | `/api/v1/meansurements?limit=50` | Retorna o histórico de medições |
-| POST | `/api/v1/meansurements` | Registra uma medição e processa alertas |
-| GET | `/api/v1/devices` | Lista os dispositivos |
-| POST | `/api/v1/actuators/fan` | Envia comando para o ventilador |
-| POST | `/api/v1/actuators/exhaust` | Envia comando para o exaustor |
+| GET | `/api/health` | Estado da API |
+| GET | `/api/database/health` | Estado do PostgreSQL |
+| GET | `/api/v1/meansurements/latest` | Última medição |
+| GET | `/api/v1/meansurements/latest?device_id=1` | Última medição de um device |
+| GET | `/api/v1/meansurements?limit=50` | Histórico |
+| GET | `/api/v1/meansurements?device_id=1&from=YYYY-MM-DD&to=YYYY-MM-DD&limit=50` | Histórico filtrado |
+| POST | `/api/v1/meansurements` | Registra medição e processa alertas |
+| GET | `/api/v1/devices` | Lista devices e status dinâmico |
+| GET | `/api/v1/devices/show?id=1` | Consulta um device |
+| POST | `/api/v1/actuators/fan` | Comando do ventilador |
+| POST | `/api/v1/actuators/exhaust` | Comando do exaustor |
 | GET | `/api/v1/alerts` | Lista alertas |
-| POST | `/api/v1/alerts/resolve` | Resolve um alerta aberto |
-| GET | `/api/v1/sensor-limits` | Lista limites dos sensores |
-| POST | `/api/v1/sensor-limits` | Cria limite de sensor |
-| POST | `/api/v1/sensor-limits/update` | Atualiza limite de sensor |
+| POST | `/api/v1/alerts/resolve` | Resolve alerta |
+| GET | `/api/v1/sensor-limits` | Lista limites |
+| POST | `/api/v1/sensor-limits` | Cria limite |
+| POST | `/api/v1/sensor-limits/update` | Atualiza limite |
+
+### Status dinâmico dos devices
+
+A API calcula o estado a partir de `last_seen`:
+
+```text
+última comunicação <= 30 segundos → online
+última comunicação > 30 segundos  → offline
+sem last_seen                      → offline
+```
 
 ## Testes
 
-A pasta `tests/` contém testes de integração da API e do fluxo MQTT.
+A suíte cobre atualmente:
 
-Execute:
+- health da API;
+- criação e validação de medições;
+- latest e histórico filtrado;
+- consulta e validação de devices;
+- validações de sensor limits;
+- listagem e validação de alertas;
+- fluxo MQTT → consumer → PostgreSQL;
+- proteção contra gravação MQTT duplicada;
+- rejeição de telemetria MQTT inválida sem derrubar o consumer.
+
+Execute na raiz:
 
 ```bash
 ./tests/run.sh
@@ -225,7 +291,7 @@ Execute:
 
 ## Execução local
 
-Crie o arquivo `.env`:
+Crie o arquivo de ambiente:
 
 ```bash
 cp .env.example .env
@@ -237,7 +303,13 @@ Suba os serviços:
 docker compose up -d --build
 ```
 
-Para acompanhar a telemetria:
+Confira:
+
+```bash
+docker compose ps
+```
+
+Acompanhe a telemetria:
 
 ```bash
 docker compose logs -f mqtt_consumer
@@ -248,33 +320,38 @@ docker compose logs -f mqtt_consumer
 ### Concluído
 
 - infraestrutura Docker;
-- API REST;
 - PostgreSQL e migrations;
 - Mosquitto;
 - consumer MQTT;
 - persistência de telemetria;
-- limites ambientais e alertas;
+- API REST;
+- `MeansurementService` centralizado;
+- `DeviceService` centralizado;
+- validação compartilhada entre REST e MQTT;
+- histórico por device e período;
+- status online/offline por `last_seen`;
+- limites ambientais e geração de alertas;
 - controle de atuadores e ACK;
-- validação de medições;
-- testes de integração iniciais;
+- suíte de integração para API e MQTT;
 - dashboard Web inicial;
 - firmware ESP32 com Wi-Fi e MQTT;
-- publicação de telemetria simulada a partir do ESP32 físico.
+- telemetria simulada publicada pelo ESP32 físico.
 
 ### Próximos passos
 
-- integrar sensores reais ao ESP32;
-- consulta individual e status automático de devices;
-- filtros de histórico;
-- expandir testes automatizados;
-- finalizar dashboard Web;
-- aplicação iOS.
+- concluir `SensorLimitService`;
+- concluir `AlertService`;
+- concluir `ActuatorService`;
+- revisar `MqttService`;
+- integrar sensores físicos ao ESP32;
+- finalizar e servir o dashboard Web pela infraestrutura;
+- iniciar aplicação iOS.
 
 ## Segurança
 
 Credenciais locais ficam fora do versionamento.
 
-Arquivos como `.env` e `esp32/include/secrets.h` são ignorados. Apenas arquivos de exemplo sem valores sensíveis são versionados.
+Arquivos como `.env` e `esp32/include/secrets.h` são ignorados. Apenas arquivos de exemplo sem valores sensíveis devem ser versionados.
 
 ## Licença
 
