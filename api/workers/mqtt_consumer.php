@@ -1,7 +1,6 @@
 <?php
 
 require_once __DIR__ . '/../vendor/autoload.php';
-use App\Validators\MeansurementValidator;
 use App\Config\Database;
 use App\Repositories\MeansurementRepository;
 use App\Repositories\DeviceRepository;
@@ -11,6 +10,7 @@ use PhpMqtt\Client\MqttClient;
 use App\Repositories\SensorLimitRepository;
 use App\Repositories\AlertRepository;
 use App\Services\MeansurementService;
+use App\Validators\MeansurementValidator;
 
 
 
@@ -34,7 +34,6 @@ $meansurementRepository =
 $deviceRepository =
     new DeviceRepository($connection);
 
-$meansurementValidator = new MeansurementValidator();
 
 $actuatorRepository =
     new ActuatorCommandRepository($connection);
@@ -45,12 +44,16 @@ $sensorLimitRepository =
 $alertRepository =
     new AlertRepository($connection);
 
+$meansurementValidator =
+    new MeansurementValidator();
+
 $meansurementService =
     new MeansurementService(
         $meansurementRepository,
         $deviceRepository,
         $sensorLimitRepository,
-        $alertRepository
+        $alertRepository,
+        $meansurementValidator
 );
 
 
@@ -80,8 +83,7 @@ $mqtt->subscribe(
         bool $retained,
         array $matchedWildcards
     ) use (
-        $meansurementService,
-        $meansurementValidator
+        $meansurementService
     ) {
 
         echo "Mensagem recebida: {$message}"
@@ -118,37 +120,16 @@ $mqtt->subscribe(
 
             return;
         }
-
-
-        $requiredFields = [
-            'temperature',
-            'humidity',
-            'luminosity',
-            'air_quality'
-        ];
-
-
-        foreach ($requiredFields as $field) {
-
-            if (!array_key_exists(
-                $field,
-                $data
-            )) {
-
-                echo
-                    "Campo {$field} ausente."
-                    . PHP_EOL;
-
-                return;
-            }
+        $data['device_id'] = $deviceId;
+        try {
+            $result = $meansurementService->create($data);
+        } catch (\InvalidArgumentException $error){
+            echo
+                "telemetria invalida:"
+                . $error->getMessage()
+                . PHP_EQL;
+            return;
         }
-
-
-        $data['device_id'] =
-            $deviceId;
-
-        $errors = $meansurementValidator->validate($data);
-
         if (!empty($errors)) {
 
             echo

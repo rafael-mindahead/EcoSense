@@ -11,8 +11,9 @@ class MeansurementRepository
     ) {
     }
 
-    public function findLatest(): ?array
+    public function findLatest(?int $deviceId = null): ?array
     {
+
         $sql = "
             SELECT
                 id,
@@ -23,56 +24,111 @@ class MeansurementRepository
                 air_quality,
                 created_at
             FROM meansurements
+        ";
+
+        $params = [];
+
+        if ($deviceId !== null) {
+            $sql .= "
+                WHERE device_id = :device_id
+            ";
+
+            $params[':device_id'] = $deviceId;
+        }
+
+        $sql .= "
             ORDER BY created_at DESC
             LIMIT 1
         ";
 
-        $statement = $this->connection->query($sql);
+        $statement =
+            $this->connection->prepare($sql);
 
-        $meansurement =
-            $statement->fetch(PDO::FETCH_ASSOC);
+        $statement->execute($params);
 
-        if (!$meansurement) {
-            return null;
+        $row = $statement->fetch(
+            PDO::FETCH_ASSOC
+        );
+
+        return $row
+            ? $this->normalizeRow($row)
+            : null;
+    }
+    public function findAll(array $filters): array
+    {
+        $sql = "
+        SELECT
+            id,
+            device_id,
+            temperature,
+            humidity,
+            luminosity,
+            air_quality,
+            created_at
+        FROM meansurements
+        ";
+
+        $where = [];
+        $params = [];
+
+        if ($filters['device_id'] !== null) {
+
+            $where[] =
+                "device_id = :device_id";
+
+            $params[':device_id'] =
+                $filters['device_id'];
         }
 
-        return [
-            'id' => (int) $meansurement['id'],
-            'device_id' => (int) $meansurement['device_id'],
-            'temperature' => (float) $meansurement['temperature'],
-            'humidity' => (float) $meansurement['humidity'],
-            'luminosity' => (float) $meansurement['luminosity'],
-            'air_quality' => (float) $meansurement['air_quality'],
-            'created_at' => $meansurement['created_at']
-        ];
-    }
+        if ($filters['from'] !== null) {
 
-    public function findAll(int $limit = 50): array
-    {
-        $limit = max(1, min($limit, 100));
+            $where[] =
+                "created_at >= :from";
 
-        $sql = "
-            SELECT
-                id,
-                device_id,
-                temperature,
-                humidity,
-                luminosity,
-                air_quality,
-                created_at
-            FROM meansurements
+            $params[':from'] =
+                $filters['from'];
+        }
+
+        if ($filters['to'] !== null) {
+
+            $where[] =
+                "created_at <= :to";
+
+            $params[':to'] =
+                $filters['to'];
+        }
+
+        if (!empty($where)) {
+
+            $sql .= "
+                WHERE "
+                . implode(
+                    " AND ",
+                    $where
+                );
+        }
+
+        $sql .= "
             ORDER BY created_at DESC
-            LIMIT {$limit}
+            LIMIT {$filters['limit']}
         ";
 
         $statement =
-            $this->connection->query($sql);
+            $this->connection->prepare($sql);
 
-        return $statement->fetchAll(
-            PDO::FETCH_ASSOC
+        $statement->execute($params);
+
+        $rows =
+            $statement->fetchAll(
+                PDO::FETCH_ASSOC
+            );
+
+        return array_map(
+            fn(array $row) =>
+                $this->normalizeRow($row),
+            $rows
         );
     }
-
     public function create(array $data): array
     {
         $sql = "
@@ -111,8 +167,35 @@ class MeansurementRepository
             ':air_quality' => $data['air_quality']
         ]);
 
-        return $statement->fetch(
+        $row = $statement->fetch(
             PDO::FETCH_ASSOC
         );
+        return $this->normalizeRow($row);
+    }
+    private function normalizeRow(array $row): array 
+    {
+
+    return [
+        'id' =>
+            (int) $row['id'],
+
+        'device_id' =>
+            (int) $row['device_id'],
+
+        'temperature' =>
+            (float) $row['temperature'],
+
+        'humidity' =>
+            (float) $row['humidity'],
+
+        'luminosity' =>
+            (float) $row['luminosity'],
+
+        'air_quality' =>
+            (float) $row['air_quality'],
+
+        'created_at' =>
+            $row['created_at']
+        ];
     }
 }

@@ -10,9 +10,7 @@ use App\Validators\MeansurementValidator;
 class MeansurementController
 {
     public function __construct(
-        private MeansurementRepository $repository,
         private MeansurementService $service,
-        private MeansurementValidator $validator
     ) {
     }
 
@@ -20,56 +18,70 @@ class MeansurementController
     {
         try {
 
-            $meansurement = $this->repository->findLatest();
+            $meansurement =
+                $this->service->latest(
+                    $_GET['device_id']
+                    ?? null
+                );
 
             if (!$meansurement) {
 
                 Response::json([
-                    'error' => 'No meansurements found'
+                    'error' =>
+                        'No meansurements found'
                 ], 404);
 
                 return;
             }
 
-            Response::json($meansurement);
+            Response::json(
+                $meansurement
+            );
+
+        } catch (\InvalidArgumentException $error) {
+
+            Response::json([
+                'error' =>
+                    $error->getMessage()
+            ], 422);
 
         } catch (\Throwable $error) {
 
             Response::json([
                 'status' => 'error',
-                'message' => $error->getMessage()
+                'message' =>
+                    $error->getMessage()
             ], 500);
         }
     }
-
     public function index(): void
     {
         try {
 
-            $limit = isset($_GET['limit'])
-                ? (int) $_GET['limit']
-                : 50;
+            $result =
+                $this->service
+                    ->history($_GET);
 
-            $limit = max(1, min($limit, 100));
+            Response::json(
+                $result
+            );
 
-            $meansurements =
-                $this->repository->findAll($limit);
+        } catch (\InvalidArgumentException $error) {
 
             Response::json([
-                'count' => count($meansurements),
-                'limit' => $limit,
-                'data' => $meansurements
-            ]);
+                'error' =>
+                    $error->getMessage()
+            ], 422);
 
         } catch (\Throwable $error) {
 
             Response::json([
                 'status' => 'error',
-                'message' => $error->getMessage()
+                'message' =>
+                    $error->getMessage()
             ], 500);
         }
     }
-
     public function store(): void
     {
         try {
@@ -88,18 +100,6 @@ class MeansurementController
                 return;
             }
 
-            $errors = $this->validator->validate($body);
-
-            if (!empty($errors)) {
-
-                Response::json([
-                    'error' => 'validation failed',
-                    'details' => $errors
-                ], 422);
-
-                return;
-            }
-
             $result = $this->service->create($body);
 
             Response::json([
@@ -108,12 +108,20 @@ class MeansurementController
                 'alerts' => $result['alerts']
             ], 201);
 
+        } catch (\InvalidArgumentException $error) {
+
+            Response::json([
+                'error' => 'validation failed',
+                
+                'error' =>
+                    $error->getMessage()
+            ], 422);
         } catch (\Throwable $error) {
 
             Response::json([
                 'status' => 'error',
                 'message' => $error->getMessage()
             ], 500);
-        }
+        } 
     }
 }

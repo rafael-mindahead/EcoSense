@@ -20,7 +20,7 @@ class DeviceRepository
                 device_code,
 
             CASE
-                WHEN last_seen IS NOT NULL
+                WHEN last_seen  IS NOT NULL
                 AND last_seen >= 
                      CURRENT_TIMESTAMP
                      - INTERVAL '30 seconds'

@@ -71,6 +71,8 @@ $router->get('/api/v1/meansurements/latest', function () {
     $alertRepository =
         new AlertRepository($connection);
 
+
+    $meansurementValidator = new MeansurementValidator();
     $service =
         new MeansurementService(
             $repository,
@@ -78,11 +80,9 @@ $router->get('/api/v1/meansurements/latest', function () {
             $sensorLimitRepository,
             $alertRepository
         );
-    $meansurementValidator = new MeansurementValidator();
 
     $controller =
         new MeansurementController(
-            $repository,
             $service,
             $meansurementValidator
         );
@@ -107,6 +107,8 @@ $router->get('/api/v1/meansurements', function () {
     $alertRepository =
         new AlertRepository($connection);
 
+
+    $meansurementValidator = new MeansurementValidator();
     $service =
         new MeansurementService(
             $repository,
@@ -114,12 +116,10 @@ $router->get('/api/v1/meansurements', function () {
             $sensorLimitRepository,
             $alertRepository
         );
-    $meansurementValidator = new MeansurementValidator();
 
 
     $controller =
         new MeansurementController(
-            $repository,
             $service,
             $meansurementValidator
         );
@@ -143,20 +143,19 @@ $router->post('/api/v1/meansurements', function () {
     $alertRepository =
         new AlertRepository($connection);
 
+    $meansurementValidator = new MeansurementValidator();
     $service =
         new MeansurementService(
             $repository,
             $deviceRepository,
             $sensorLimitRepository,
-            $alertRepository
+            $alertRepository,
+            $meansurementValidator
         );
-    $meansurementValidator = new MeansurementValidator();
 
     $controller =
         new MeansurementController(
-            $repository,
-            $service,
-            $meansurementValidator
+            $service
         );
     $controller->store();
 });
