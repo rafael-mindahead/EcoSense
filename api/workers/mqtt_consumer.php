@@ -1,17 +1,16 @@
 <?php
 
 require_once __DIR__ . '/../vendor/autoload.php';
+
 use App\Config\Database;
 use App\Repositories\MeansurementRepository;
 use App\Repositories\DeviceRepository;
 use App\Repositories\ActuatorCommandRepository;
-use PhpMqtt\Client\MqttClient;
-
 use App\Repositories\SensorLimitRepository;
 use App\Repositories\AlertRepository;
 use App\Services\MeansurementService;
 use App\Validators\MeansurementValidator;
-
+use PhpMqtt\Client\MqttClient;
 
 
 // Configuração MQTT
@@ -34,7 +33,6 @@ $meansurementRepository =
 $deviceRepository =
     new DeviceRepository($connection);
 
-
 $actuatorRepository =
     new ActuatorCommandRepository($connection);
 
@@ -54,7 +52,7 @@ $meansurementService =
         $sensorLimitRepository,
         $alertRepository,
         $meansurementValidator
-);
+    );
 
 
 // Cliente MQTT
@@ -67,10 +65,7 @@ $mqtt = new MqttClient(
 $mqtt->connect();
 
 
-
 // TELEMETRIA
-
-
 $telemetryTopic =
     'ecosense/device/+/telemetry';
 
@@ -94,7 +89,6 @@ $mqtt->subscribe(
             true
         );
 
-
         if (!is_array($data)) {
 
             echo "JSON invalido."
@@ -102,7 +96,6 @@ $mqtt->subscribe(
 
             return;
         }
-
 
         $topicParts = explode(
             '/',
@@ -112,7 +105,6 @@ $mqtt->subscribe(
         $deviceId =
             (int) ($topicParts[2] ?? 0);
 
-
         if ($deviceId <= 0) {
 
             echo "device_id invalido."
@@ -120,37 +112,31 @@ $mqtt->subscribe(
 
             return;
         }
-        $data['device_id'] = $deviceId;
+
+        $data['device_id'] =
+            $deviceId;
+
         try {
-            $result = $meansurementService->create($data);
-        } catch (\InvalidArgumentException $error){
-            echo
-                "telemetria invalida:"
-                . $error->getMessage()
-                . PHP_EQL;
-            return;
-        }
-        if (!empty($errors)) {
+
+            $result =
+                $meansurementService
+                    ->create($data);
+
+        } catch (\InvalidArgumentException $error) {
 
             echo
                 "Telemetria invalida: "
-                . implode(
-                    ', ',
-                    $errors
-                )
+                . $error->getMessage()
                 . PHP_EOL;
 
             return;
         }
 
-        $result =
-        $meansurementService
-        ->create($data);
-
         $meansurement =
-        $result['meansurement'];
+            $result['meansurement'];
 
         if (count($result['alerts']) > 0) {
+
             echo
                 "Alertas gerados: "
                 . count($result['alerts'])
@@ -167,10 +153,7 @@ $mqtt->subscribe(
 );
 
 
-// ===============================
 // ACK DOS ATUADORES
-// ===============================
-
 $ackTopic =
     'ecosense/device/+/commands/ack';
 
@@ -189,12 +172,10 @@ $mqtt->subscribe(
         echo "ACK recebido: {$message}"
             . PHP_EOL;
 
-
         $data = json_decode(
             $message,
             true
         );
-
 
         if (!is_array($data)) {
 
@@ -204,7 +185,6 @@ $mqtt->subscribe(
             return;
         }
 
-
         if (!isset($data['command_id'])) {
 
             echo "command_id ausente."
@@ -213,17 +193,14 @@ $mqtt->subscribe(
             return;
         }
 
-
         $commandId =
             (int) $data['command_id'];
-
 
         $command =
             $actuatorRepository
                 ->markExecuted(
                     $commandId
                 );
-
 
         if (!$command) {
 
@@ -233,6 +210,7 @@ $mqtt->subscribe(
 
             return;
         }
+
         echo
             "Comando {$commandId} executado."
             . PHP_EOL;
@@ -242,10 +220,7 @@ $mqtt->subscribe(
 );
 
 
-// ===============================
 // LOOP
-// ===============================
-
 echo "EcoSense MQTT Consumer iniciado."
     . PHP_EOL;
 
