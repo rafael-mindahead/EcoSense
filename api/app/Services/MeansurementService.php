@@ -5,7 +5,6 @@ namespace App\Services;
 use App\Repositories\MeansurementRepository;
 use App\Repositories\DeviceRepository;
 use App\Repositories\SensorLimitRepository;
-use App\Repositories\AlertRepository;
 use App\Validators\MeansurementValidator;
 
 class MeansurementService
@@ -14,7 +13,7 @@ class MeansurementService
         private MeansurementRepository $meansurementRepository,
         private DeviceRepository $deviceRepository,
         private SensorLimitRepository $sensorLimitRepository,
-        private AlertRepository $alertRepository,
+        private AlertService $alertService,
         private MeansurementValidator $validator
     ) {
     }
@@ -91,7 +90,7 @@ class MeansurementService
             ) {
 
                 $alerts[] =
-                    $this->alertRepository
+                    $this->alertService
                         ->create(
                             $deviceId,
                             $metric,
@@ -108,7 +107,7 @@ class MeansurementService
             ) {
 
                 $alerts[] =
-                    $this->alertRepository
+                    $this->alertService
                         ->create(
                             $deviceId,
                             $metric,

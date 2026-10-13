@@ -11,7 +11,7 @@ use App\Repositories\AlertRepository;
 use App\Services\MeansurementService;
 use App\Validators\MeansurementValidator;
 use PhpMqtt\Client\MqttClient;
-
+use App\Services\AlertService;
 
 // Configuração MQTT
 $host = getenv('MQTT_HOST') ?: 'mosquitto';
@@ -42,6 +42,8 @@ $sensorLimitRepository =
 $alertRepository =
     new AlertRepository($connection);
 
+$alertService = new AlertService($alertRepository);
+
 $meansurementValidator =
     new MeansurementValidator();
 
@@ -50,7 +52,7 @@ $meansurementService =
         $meansurementRepository,
         $deviceRepository,
         $sensorLimitRepository,
-        $alertRepository,
+        $alertService,
         $meansurementValidator
     );
 

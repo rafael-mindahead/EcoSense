@@ -24,6 +24,8 @@ use App\Validators\MeansurementValidator;
 use App\Services\DeviceService;
 
 use App\Services\SensorLimitService;
+use App\Services\AlertService;
+
 
 $router->get('/api/health', function () {
 
@@ -72,6 +74,8 @@ $router->get('/api/v1/meansurements/latest', function () {
     $alertRepository =
         new AlertRepository($connection);
 
+    $alertService = new AlertService($alertRepository);
+
     $meansurementValidator =
         new MeansurementValidator();
 
@@ -80,7 +84,7 @@ $router->get('/api/v1/meansurements/latest', function () {
             $repository,
             $deviceRepository,
             $sensorLimitRepository,
-            $alertRepository,
+            $alertService,
             $meansurementValidator
         );
 
@@ -109,6 +113,8 @@ $router->get('/api/v1/meansurements', function () {
     $alertRepository =
         new AlertRepository($connection);
 
+    $alertService = new AlertService($alertRepository);
+
     $meansurementValidator =
         new MeansurementValidator();
 
@@ -117,7 +123,7 @@ $router->get('/api/v1/meansurements', function () {
             $repository,
             $deviceRepository,
             $sensorLimitRepository,
-            $alertRepository,
+            $alertService,
             $meansurementValidator
         );
 
@@ -146,6 +152,8 @@ $router->post('/api/v1/meansurements', function () {
     $alertRepository =
         new AlertRepository($connection);
 
+    $alertService = new AlertService($alertRepository);
+
     $meansurementValidator =
         new MeansurementValidator();
 
@@ -154,7 +162,7 @@ $router->post('/api/v1/meansurements', function () {
             $repository,
             $deviceRepository,
             $sensorLimitRepository,
-            $alertRepository,
+            $alertService,
             $meansurementValidator
         );
 
@@ -249,11 +257,11 @@ $router->get('/api/v1/alerts', function () {
 
     $connection = Database::connect();
 
-    $repository =
-        new AlertRepository($connection);
+    $repository = new AlertRepository($connection);
 
-    $controller =
-        new AlertController($repository);
+    $service = new AlertService($repository);
+
+    $controller = new AlertController($service);
 
     $controller->index();
 });
@@ -263,11 +271,11 @@ $router->post('/api/v1/alerts/resolve', function () {
 
     $connection = Database::connect();
 
-    $repository =
-        new AlertRepository($connection);
+    $repository = new AlertRepository($connection);
 
-    $controller =
-        new AlertController($repository);
+    $service = new AlertService($repository);
+
+    $controller = new AlertController($service);
 
     $controller->resolve();
 });

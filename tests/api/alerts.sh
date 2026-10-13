@@ -38,3 +38,23 @@ if [ "$STATUS" != "422" ]; then
 fi
 
 echo "✅ Validação de alert_id funcionando"
+
+echo "→ Testando alerta inexistente..."
+
+STATUS=$(curl -s \
+    -o /tmp/ecosense_alert_not_found.json \
+    -w "%{http_code}" \
+    -X POST \
+    "$BASE_URL/api/v1/alerts/resolve" \
+    -H "Content-Type: application/json" \
+    -d '{
+        "alert_id": 999999
+    }')
+
+if [ "$STATUS" != "404" ]; then
+    echo "❌ Esperado 404, recebido $STATUS"
+    cat /tmp/ecosense_alert_not_found.json
+    exit 1
+fi
+
+echo "✅ Alerta inexistente retorna 404"
