@@ -23,6 +23,7 @@ use App\Controllers\AlertController;
 use App\Validators\MeansurementValidator;
 use App\Services\DeviceService;
 
+use App\Services\SensorLimitService;
 
 $router->get('/api/health', function () {
 
@@ -274,18 +275,21 @@ $router->post('/api/v1/alerts/resolve', function () {
 
 $router->get('/api/v1/sensor-limits', function () {
 
-    $connection =
-        Database::connect();
+    $connection = Database::connect();
 
-    $repository =
-        new SensorLimitRepository(
-            $connection
-        );
+    $repository = new SensorLimitRepository($connection);
 
-    $controller =
-        new SensorLimitController(
-            $repository
-        );
+    $deviceRepository = new DeviceRepository($connection);
+
+    $deviceService = new DeviceService($deviceRepository);
+
+    $service = new SensorLimitService(
+        $repository,
+        $deviceService
+    );
+
+
+    $controller = new SensorLimitController($service);
 
     $controller->index();
 });
@@ -293,18 +297,20 @@ $router->get('/api/v1/sensor-limits', function () {
 
 $router->post('/api/v1/sensor-limits', function () {
 
-    $connection =
-        Database::connect();
+    $connection = Database::connect();
 
-    $repository =
-        new SensorLimitRepository(
-            $connection
-        );
+    $repository = new SensorLimitRepository($connection);
 
-    $controller =
-        new SensorLimitController(
-            $repository
-        );
+    $deviceRepository = new DeviceRepository($connection);
+
+    $deviceService= new DeviceService($deviceRepository);
+
+    $service = new SensorLimitService(
+        $repository,
+        $deviceService
+    );
+
+    $controller = new SensorLimitController($service);
 
     $controller->store();
 });
@@ -312,18 +318,20 @@ $router->post('/api/v1/sensor-limits', function () {
 
 $router->post('/api/v1/sensor-limits/update', function () {
 
-    $connection =
-        Database::connect();
+    $connection = Database::connect();
 
-    $repository =
-        new SensorLimitRepository(
-            $connection
-        );
+    $repository = new SensorLimitRepository($connection);
 
-    $controller =
-        new SensorLimitController(
-            $repository
-        );
+    $deviceRepository = new DeviceRepository($connection);
+
+    $deviceService = new DeviceService($deviceRepository);
+
+    $service = new SensorLimitService(
+        $repository,
+        $deviceService
+    );
+
+    $controller = new SensorLimitController($service);
 
     $controller->update();
 });
