@@ -1,146 +1,389 @@
 #include <Arduino.h>
-#include <WiFi.h>
-#include <PubSubClient.h>
 
-#include "secrets.h"
+#include "ActuatorHardwareService.h"
+#include "AppConfig.h"
+#include "ConfigService.h"
+#include "EnergyService.h"
+#include "HistoryService.h"
+#include "LogService.h"
+#include "MqttDeviceService.h"
+#include "OtaService.h"
+#include "PerformanceService.h"
+#include "SensorService.h"
+#include "TimeService.h"
+#include "WebServerService.h"
+#include "WifiService.h"
 
 namespace {
-constexpr uint16_t MQTT_PORT = 1883;
-constexpr char TELEMETRY_TOPIC[] = "ecosense/device/1/telemetry";
-constexpr unsigned long TELEMETRY_INTERVAL_MS = 5000;
 
-WiFiClient wifiClient;
-PubSubClient mqttClient(wifiClient);
+ConfigService configService;
+WifiService wifiService(
+    configService
+);
 
-unsigned long lastTelemetry = 0;
+TimeService timeService(
+    wifiService
+);
 
-void connectWifi()
+LogService logService(
+    timeService
+);
+
+HistoryService historyService(
+    timeService
+);
+
+SensorService sensorService(
+    timeService
+);
+
+ActuatorHardwareService
+    actuatorService;
+
+PerformanceService
+    performanceService(
+        wifiService
+    );
+
+MqttDeviceService mqttService(
+    configService,
+    wifiService,
+    actuatorService,
+    logService,
+    performanceService
+);
+
+EnergyService energyService(
+    wifiService,
+    logService
+);
+
+OtaService otaService(
+    logService
+);
+
+WebServerService webService(
+    configService,
+    wifiService,
+    timeService,
+    sensorService,
+    historyService,
+    logService,
+    performanceService,
+    actuatorService,
+    mqttService,
+    energyService,
+    otaService
+);
+
+TaskHandle_t sensorTaskHandle =
+    nullptr;
+
+TaskHandle_t networkTaskHandle =
+    nullptr;
+
+TaskHandle_t webTaskHandle =
+    nullptr;
+
+TaskHandle_t maintenanceTaskHandle =
+    nullptr;
+
+volatile uint32_t interruptCount =
+    0;
+
+portMUX_TYPE interruptMux =
+    portMUX_INITIALIZER_UNLOCKED;
+
+void IRAM_ATTR hardwareInterrupt()
 {
-    if (WiFi.status() == WL_CONNECTED) {
-        return;
-    }
+    portENTER_CRITICAL_ISR(
+        &interruptMux
+    );
 
-    Serial.print("Conectando ao Wi-Fi");
+    interruptCount++;
 
-    WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
-
-    while (WiFi.status() != WL_CONNECTED) {
-        delay(500);
-        Serial.print(".");
-    }
-
-    Serial.println();
-    Serial.println("Wi-Fi conectado!");
-
-    Serial.print("IP do ESP32: ");
-    Serial.println(WiFi.localIP());
+    portEXIT_CRITICAL_ISR(
+        &interruptMux
+    );
 }
 
-void connectMqtt()
+void sensorTask(void*)
 {
-    while (!mqttClient.connected()) {
-        Serial.print("Conectando ao MQTT...");
+    for (;;) {
+        const uint32_t sensorStarted =
+            micros();
 
-        String clientId = "EcoSense-ESP32-";
-        clientId += String(
-            static_cast<uint32_t>(
-                ESP.getEfuseMac()
-            ),
-            HEX
+        const SensorSample sample =
+            sensorService.read();
+
+        const uint32_t sensorDuration =
+            micros() -
+            sensorStarted;
+
+        performanceService
+            .recordTiming(
+                "sensor_read",
+                sensorDuration
+            );
+
+        performanceService
+            .addBusyMicros(
+                sensorDuration
+            );
+
+        const uint32_t historyStarted =
+            micros();
+
+        historyService.append(
+            sample
         );
 
-        if (mqttClient.connect(clientId.c_str())) {
-            Serial.println(" conectado!");
-            return;
+        const uint32_t historyDuration =
+            micros() -
+            historyStarted;
+
+        performanceService
+            .recordTiming(
+                "history_write",
+                historyDuration
+            );
+
+        performanceService
+            .addBusyMicros(
+                historyDuration
+            );
+
+        if (!sample.dhtValid) {
+            logService.warning(
+                "DHT22 sem leitura valida; verifique o sensor fisico"
+            );
         }
 
-        Serial.print(" falhou. Estado: ");
-        Serial.println(mqttClient.state());
-
-        delay(2000);
+        vTaskDelay(
+            pdMS_TO_TICKS(
+                configService
+                    .sensorIntervalMs()
+            )
+        );
     }
 }
 
-void publishTelemetry()
+void networkTask(void*)
 {
-    const float temperature =
-        random(220, 320) / 10.0f;
+    uint32_t lastPublishedSample =
+        0;
 
-    const float humidity =
-        random(400, 800) / 10.0f;
+    for (;;) {
+        const uint32_t started =
+            micros();
 
-    const int luminosity =
-        random(300, 900);
+        wifiService.tick();
+        timeService.tick();
+        mqttService.tick();
 
-    const int airQuality =
-        random(70, 100);
+        const SensorSample sample =
+            sensorService.latest();
 
-    char payload[180];
+        if (
+            sample.uptimeMs != 0 &&
+            sample.uptimeMs !=
+                lastPublishedSample &&
+            mqttService.isConnected()
+        ) {
+            if (
+                mqttService
+                    .publishTelemetry(
+                        sample
+                    )
+            ) {
+                lastPublishedSample =
+                    sample.uptimeMs;
+            }
+        }
 
-    snprintf(
-        payload,
-        sizeof(payload),
-        "{\"temperature\":%.1f,\"humidity\":%.1f,\"luminosity\":%d,\"air_quality\":%d}",
-        temperature,
-        humidity,
-        luminosity,
-        airQuality
-    );
+        performanceService
+            .addBusyMicros(
+                micros() -
+                started
+            );
 
-    const bool published =
-        mqttClient.publish(
-            TELEMETRY_TOPIC,
-            payload
+        vTaskDelay(
+            pdMS_TO_TICKS(10)
+        );
+    }
+}
+
+void webTask(void*)
+{
+    for (;;) {
+        webService.tick();
+
+        vTaskDelay(
+            pdMS_TO_TICKS(5)
+        );
+    }
+}
+
+void maintenanceTask(void*)
+{
+    uint32_t handledInterrupts =
+        0;
+
+    for (;;) {
+        energyService.tick();
+
+        uint32_t currentInterrupts;
+
+        portENTER_CRITICAL(
+            &interruptMux
         );
 
-    Serial.print("Telemetria: ");
-    Serial.println(payload);
+        currentInterrupts =
+            interruptCount;
 
-    Serial.println(
-        published
-            ? "Publicada com sucesso!"
-            : "Falha ao publicar."
-    );
+        portEXIT_CRITICAL(
+            &interruptMux
+        );
+
+        if (
+            currentInterrupts !=
+            handledInterrupts
+        ) {
+            handledInterrupts =
+                currentInterrupts;
+
+            logService.info(
+                "Interrupcao de hardware detectada. Total="
+                + String(
+                    handledInterrupts
+                )
+            );
+        }
+
+        vTaskDelay(
+            pdMS_TO_TICKS(50)
+        );
+    }
 }
+
 }
 
 void setup()
 {
     Serial.begin(115200);
-    delay(1000);
+
+    configService.begin();
+
+    wifiService.begin();
+
+    logService.begin();
+    historyService.begin();
+
+    sensorService.begin();
+    actuatorService.begin();
+
+    performanceService.begin();
+
+    mqttService.begin();
+
+    webService.begin();
+
+    pinMode(
+        EcoSenseConfig::
+            INTERRUPT_PIN,
+        INPUT_PULLUP
+    );
+
+    attachInterrupt(
+        digitalPinToInterrupt(
+            EcoSenseConfig::
+                INTERRUPT_PIN
+        ),
+        hardwareInterrupt,
+        FALLING
+    );
+
+    logService.info(
+        "EcoSense ESP32 Server iniciado"
+    );
+
+    xTaskCreatePinnedToCore(
+        sensorTask,
+        "SensorTask",
+        4096,
+        nullptr,
+        1,
+        &sensorTaskHandle,
+        1
+    );
+
+    xTaskCreatePinnedToCore(
+        networkTask,
+        "NetworkTask",
+        6144,
+        nullptr,
+        2,
+        &networkTaskHandle,
+        0
+    );
+
+    xTaskCreatePinnedToCore(
+        webTask,
+        "WebTask",
+        8192,
+        nullptr,
+        2,
+        &webTaskHandle,
+        1
+    );
+
+    xTaskCreatePinnedToCore(
+        maintenanceTask,
+        "MaintenanceTask",
+        4096,
+        nullptr,
+        1,
+        &maintenanceTaskHandle,
+        0
+    );
+
+    performanceService
+        .registerTask(
+            "SensorTask",
+            sensorTaskHandle
+        );
+
+    performanceService
+        .registerTask(
+            "NetworkTask",
+            networkTaskHandle
+        );
+
+    performanceService
+        .registerTask(
+            "WebTask",
+            webTaskHandle
+        );
+
+    performanceService
+        .registerTask(
+            "MaintenanceTask",
+            maintenanceTaskHandle
+        );
 
     Serial.println();
-    Serial.println("EcoSense ESP32 iniciado");
+    Serial.println(
+        "EcoSense operando como servidor autonomo."
+    );
 
-    randomSeed(esp_random());
-
-    connectWifi();
-
-    mqttClient.setServer(
-        MQTT_HOST,
-        MQTT_PORT
+    Serial.println(
+        "Acesse o IP exibido pela rede ou o AP EcoSense-Setup."
     );
 }
 
 void loop()
 {
-    if (WiFi.status() != WL_CONNECTED) {
-        connectWifi();
-    }
-
-    if (!mqttClient.connected()) {
-        connectMqtt();
-    }
-
-    mqttClient.loop();
-
-    const unsigned long now = millis();
-
-    if (
-        now - lastTelemetry >=
-        TELEMETRY_INTERVAL_MS
-    ) {
-        lastTelemetry = now;
-        publishTelemetry();
-    }
+    vTaskDelay(
+        pdMS_TO_TICKS(1000)
+    );
 }
