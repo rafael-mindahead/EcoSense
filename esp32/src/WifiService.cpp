@@ -3,6 +3,10 @@
 #include "AppConfig.h"
 #include "secrets.h"
 
+#ifndef ECOSENSE_AP_PASSWORD
+#define ECOSENSE_AP_PASSWORD "ecosense123"
+#endif
+
 WifiService::WifiService(
     ConfigService& config
 ) :
@@ -44,12 +48,11 @@ void WifiService::startAccessPoint()
         return;
     }
 
-    WiFi.softAP(
-        EcoSenseConfig::SETUP_AP_SSID,
-        ECOSENSE_AP_PASSWORD
-    );
-
-    accessPointActive = true;
+    accessPointActive =
+        WiFi.softAP(
+            EcoSenseConfig::SETUP_AP_SSID,
+            ECOSENSE_AP_PASSWORD
+        );
 }
 
 void WifiService::tick()

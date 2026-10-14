@@ -1,6 +1,7 @@
 #include "PerformanceService.h"
 
 #include <ArduinoJson.h>
+#include <esp32-hal-psram.h>
 
 PerformanceService::PerformanceService(
     WifiService& wifi

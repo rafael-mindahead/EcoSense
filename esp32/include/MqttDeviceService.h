@@ -29,7 +29,7 @@ public:
         const SensorSample& sample
     );
 
-    bool isConnected() const;
+    bool isConnected();
 
     void reloadConfiguration();
 

@@ -208,7 +208,7 @@ bool MqttDeviceService::
 }
 
 bool MqttDeviceService::
-    isConnected() const
+    isConnected()
 {
     return client.connected();
 }
