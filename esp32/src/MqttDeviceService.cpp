@@ -39,10 +39,16 @@ void MqttDeviceService::begin()
 void MqttDeviceService::
     reloadConfiguration()
 {
+    if (client.connected()) {
+        client.disconnect();
+    }
+
     client.setServer(
         config.mqttHost().c_str(),
         EcoSenseConfig::MQTT_PORT
     );
+
+    lastReconnectAttempt = 0;
 }
 
 void MqttDeviceService::tick()

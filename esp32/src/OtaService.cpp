@@ -12,6 +12,8 @@ OtaService::OtaService(
 bool OtaService::beginUpdate()
 {
     errorState = false;
+    started = false;
+    completed = false;
 
     if (
         !Update.begin(
@@ -26,6 +28,8 @@ bool OtaService::beginUpdate()
 
         return false;
     }
+
+    started = true;
 
     logs.info(
         "OTA: upload iniciado"
@@ -65,6 +69,7 @@ bool OtaService::writeChunk(
 bool OtaService::finishUpdate()
 {
     if (
+        !started ||
         errorState ||
         !Update.end(true)
     ) {
@@ -77,6 +82,8 @@ bool OtaService::finishUpdate()
         return false;
     }
 
+    completed = true;
+
     logs.info(
         "OTA: firmware atualizado"
     );
@@ -87,4 +94,12 @@ bool OtaService::finishUpdate()
 bool OtaService::hasError() const
 {
     return errorState;
+}
+
+bool OtaService::isComplete() const
+{
+    return
+        started &&
+        completed &&
+        !errorState;
 }

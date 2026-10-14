@@ -431,7 +431,7 @@ void WebServerService::registerRoutes()
         HTTP_POST,
         [this]() {
             const bool success =
-                !ota.hasError();
+                ota.isComplete();
 
             server.send(
                 success ? 200 : 500,

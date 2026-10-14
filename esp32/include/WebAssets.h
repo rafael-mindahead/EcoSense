@@ -188,7 +188,7 @@ async function saveMqtt(){await json('/api/config/mqtt',{method:'POST',headers:{
 async function saveWifi(){await json('/api/config/wifi',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:new URLSearchParams({ssid:q('ssid').value,password:q('password').value})});alert('Wi-Fi salvo. O ESP tentará a nova rede.')}
 async function sleepNow(){await json('/api/energy/light-sleep',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:new URLSearchParams({seconds:q('sleepSeconds').value})});alert('Light Sleep agendado')}
 async function loadLogs(){const r=await fetch('/api/logs');q('logText').textContent=await r.text()}
-refresh();setInterval(refresh,5000);
+const initialTab=location.hash.replace('#','');if(initialTab){const button=document.querySelector('#nav button[data-tab="'+initialTab+'"]');if(button)button.click()}refresh();setInterval(refresh,5000);
 </script>
 </body>
 </html>

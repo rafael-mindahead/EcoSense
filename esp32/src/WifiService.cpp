@@ -61,6 +61,26 @@ void WifiService::tick()
         millis();
 
     if (
+        reconfigurePending &&
+        static_cast<int32_t>(
+            now - reconfigureAtMs
+        ) >= 0
+    ) {
+        reconfigurePending = false;
+
+        WiFi.disconnect(
+            false,
+            false
+        );
+
+        startedAt = now;
+
+        startStation();
+
+        return;
+    }
+
+    if (
         WiFi.status() ==
         WL_CONNECTED
     ) {
@@ -152,19 +172,9 @@ void WifiService::reconfigure(
         password
     );
 
-    WiFi.disconnect(
-        false,
-        false
-    );
+    reconfigurePending =
+        true;
 
-    startedAt =
-        millis();
-
-    WiFi.begin(
-        ssid.c_str(),
-        password.c_str()
-    );
-
-    lastReconnectAttempt =
-        millis();
+    reconfigureAtMs =
+        millis() + 1000;
 }

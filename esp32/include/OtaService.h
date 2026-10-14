@@ -19,8 +19,11 @@ public:
     bool finishUpdate();
 
     bool hasError() const;
+    bool isComplete() const;
 
 private:
     LogService& logs;
     bool errorState = false;
+    bool started = false;
+    bool completed = false;
 };
