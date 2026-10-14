@@ -68,7 +68,7 @@ $mqtt = new MqttClient(
     $port,
     $clientId
 );
-$mqttService = new MqttService($mqtt);
+$mqttService = new MqttService();
 
 $actuatorService = new ActuatorService(
     $actuatorRepository,
