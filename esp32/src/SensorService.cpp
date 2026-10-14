@@ -64,12 +64,32 @@ SensorSample SensorService::read()
                 AIR_QUALITY_PIN
         );
 
+    portENTER_CRITICAL(
+        &sampleMux
+    );
+
     lastSample = sample;
+
+    portEXIT_CRITICAL(
+        &sampleMux
+    );
 
     return sample;
 }
 
 SensorSample SensorService::latest() const
 {
-    return lastSample;
+    SensorSample sample;
+
+    portENTER_CRITICAL(
+        &sampleMux
+    );
+
+    sample = lastSample;
+
+    portEXIT_CRITICAL(
+        &sampleMux
+    );
+
+    return sample;
 }

@@ -23,6 +23,13 @@ HistoryService::HistoryService(
 
 bool HistoryService::begin()
 {
+    mutex =
+        xSemaphoreCreateMutex();
+
+    if (mutex == nullptr) {
+        return false;
+    }
+
     return LittleFS.begin(true);
 }
 
@@ -30,6 +37,15 @@ void HistoryService::append(
     const SensorSample& sample
 )
 {
+    if (
+        xSemaphoreTake(
+            mutex,
+            pdMS_TO_TICKS(1000)
+        ) != pdTRUE
+    ) {
+        return;
+    }
+
     File file =
         LittleFS.open(
             HISTORY_FILE,
@@ -37,6 +53,7 @@ void HistoryService::append(
         );
 
     if (!file) {
+        xSemaphoreGive(mutex);
         return;
     }
 
@@ -79,10 +96,13 @@ void HistoryService::append(
 
     file.close();
 
-    trimIfNeeded();
+    trimIfNeededUnlocked();
+
+    xSemaphoreGive(mutex);
 }
 
-void HistoryService::trimIfNeeded()
+void HistoryService::
+    trimIfNeededUnlocked()
 {
     File file =
         LittleFS.open(
@@ -135,7 +155,6 @@ void HistoryService::trimIfNeeded()
     }
 
     source.seek(size / 4);
-
     source.readStringUntil('\n');
 
     while (source.available()) {
@@ -162,6 +181,16 @@ String HistoryService::
         size_t maxPoints
     ) const
 {
+    if (
+        mutex == nullptr ||
+        xSemaphoreTake(
+            mutex,
+            pdMS_TO_TICKS(2000)
+        ) != pdTRUE
+    ) {
+        return "[]";
+    }
+
     File file =
         LittleFS.open(
             HISTORY_FILE,
@@ -169,6 +198,7 @@ String HistoryService::
         );
 
     if (!file) {
+        xSemaphoreGive(mutex);
         return "[]";
     }
 
@@ -321,10 +351,13 @@ String HistoryService::
     file.close();
 
     String json;
+
     serializeJson(
         document,
         json
     );
+
+    xSemaphoreGive(mutex);
 
     return json;
 }

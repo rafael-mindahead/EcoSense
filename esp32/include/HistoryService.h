@@ -1,6 +1,8 @@
 #pragma once
 
 #include <Arduino.h>
+#include <freertos/FreeRTOS.h>
+#include <freertos/semphr.h>
 
 #include "TimeService.h"
 
@@ -28,5 +30,8 @@ public:
 private:
     TimeService& time;
 
-    void trimIfNeeded();
+    mutable SemaphoreHandle_t mutex =
+        nullptr;
+
+    void trimIfNeededUnlocked();
 };

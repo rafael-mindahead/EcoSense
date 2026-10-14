@@ -1,6 +1,8 @@
 #pragma once
 
 #include <Arduino.h>
+#include <freertos/FreeRTOS.h>
+#include <freertos/semphr.h>
 
 #include "TimeService.h"
 
@@ -42,6 +44,9 @@ private:
     TimeService& time;
     size_t entries = 0;
 
+    mutable SemaphoreHandle_t mutex =
+        nullptr;
+
     void write(
         LogLevel level,
         const String& message
@@ -51,8 +56,9 @@ private:
         LogLevel level
     ) const;
 
-    size_t countLines() const;
-    void trimToLast(
+    size_t countLinesUnlocked() const;
+
+    void trimToLastUnlocked(
         size_t keepEntries
     );
 };

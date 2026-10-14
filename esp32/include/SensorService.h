@@ -37,4 +37,7 @@ private:
     DHT dht;
 
     SensorSample lastSample;
+
+    mutable portMUX_TYPE sampleMux =
+        portMUX_INITIALIZER_UNLOCKED;
 };

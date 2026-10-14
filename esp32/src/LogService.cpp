@@ -22,11 +22,18 @@ LogService::LogService(
 
 bool LogService::begin()
 {
-    if (!LittleFS.begin(true)) {
+    mutex =
+        xSemaphoreCreateMutex();
+
+    if (
+        mutex == nullptr ||
+        !LittleFS.begin(true)
+    ) {
         return false;
     }
 
-    entries = countLines();
+    entries =
+        countLinesUnlocked();
 
     return true;
 }
@@ -66,6 +73,16 @@ void LogService::write(
     const String& message
 )
 {
+    if (
+        mutex == nullptr ||
+        xSemaphoreTake(
+            mutex,
+            pdMS_TO_TICKS(1000)
+        ) != pdTRUE
+    ) {
+        return;
+    }
+
     File file =
         LittleFS.open(
             LOG_FILE,
@@ -73,9 +90,12 @@ void LogService::write(
         );
 
     if (!file) {
+        xSemaphoreGive(mutex);
+
         Serial.println(
             "Falha ao abrir log."
         );
+
         return;
     }
 
@@ -102,11 +122,13 @@ void LogService::write(
         EcoSenseConfig::
             MAX_LOG_ENTRIES
     ) {
-        trimToLast(
+        trimToLastUnlocked(
             EcoSenseConfig::
                 MAX_LOG_ENTRIES
         );
     }
+
+    xSemaphoreGive(mutex);
 }
 
 const char* LogService::levelName(
@@ -127,7 +149,8 @@ const char* LogService::levelName(
     return "INFO";
 }
 
-size_t LogService::countLines() const
+size_t LogService::
+    countLinesUnlocked() const
 {
     File file =
         LittleFS.open(
@@ -155,12 +178,13 @@ size_t LogService::countLines() const
     return count;
 }
 
-void LogService::trimToLast(
-    size_t keepEntries
-)
+void LogService::
+    trimToLastUnlocked(
+        size_t keepEntries
+    )
 {
     const size_t current =
-        countLines();
+        countLinesUnlocked();
 
     if (current <= keepEntries) {
         entries = current;
@@ -206,6 +230,7 @@ void LogService::trimToLast(
     target.close();
 
     LittleFS.remove(LOG_FILE);
+
     LittleFS.rename(
         LOG_TEMP_FILE,
         LOG_FILE
@@ -218,6 +243,16 @@ String LogService::readTail(
     size_t maxEntries
 ) const
 {
+    if (
+        mutex == nullptr ||
+        xSemaphoreTake(
+            mutex,
+            pdMS_TO_TICKS(1000)
+        ) != pdTRUE
+    ) {
+        return "";
+    }
+
     File file =
         LittleFS.open(
             LOG_FILE,
@@ -225,6 +260,7 @@ String LogService::readTail(
         );
 
     if (!file) {
+        xSemaphoreGive(mutex);
         return "";
     }
 
@@ -262,6 +298,8 @@ String LogService::readTail(
         output += line;
         output += "\n";
     }
+
+    xSemaphoreGive(mutex);
 
     return output;
 }

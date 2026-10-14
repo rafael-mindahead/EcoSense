@@ -27,5 +27,5 @@ public:
     );
 
 private:
-    Preferences preferences;
+    mutable Preferences preferences;
 };
