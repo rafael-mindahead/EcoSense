@@ -12,6 +12,9 @@ use App\Services\MeansurementService;
 use App\Validators\MeansurementValidator;
 use PhpMqtt\Client\MqttClient;
 use App\Services\AlertService;
+use App\Services\ActuatorService;
+use App\Services\MqttService;
+use App\Services\DeviceService;
 
 // Configuração MQTT
 $host = getenv('MQTT_HOST') ?: 'mosquitto';
@@ -32,6 +35,8 @@ $meansurementRepository =
 
 $deviceRepository =
     new DeviceRepository($connection);
+
+$deviceService = new DeviceService($deviceRepository);
 
 $actuatorRepository =
     new ActuatorCommandRepository($connection);
@@ -62,6 +67,13 @@ $mqtt = new MqttClient(
     $host,
     $port,
     $clientId
+);
+$mqttService = new MqttService($mqtt);
+
+$actuatorService = new ActuatorService(
+    $actuatorRepository,
+    $mqttService,
+    $deviceService
 );
 
 $mqtt->connect();
@@ -168,7 +180,7 @@ $mqtt->subscribe(
         bool $retained,
         array $matchedWildcards
     ) use (
-        $actuatorRepository
+        $actuatorService
     ) {
 
         echo "ACK recebido: {$message}"
@@ -195,30 +207,24 @@ $mqtt->subscribe(
             return;
         }
 
-        $commandId =
-            (int) $data['command_id'];
+        $commandId = (int) $data['command_id'];
 
-        $command =
-            $actuatorRepository
-                ->markExecuted(
-                    $commandId
-                );
+        try {
 
-        if (!$command) {
+                $command =$actuatorService->acknowledge($commandId);
+            } catch (
+                \InvalidArgumentException |
+                \RuntimeException $error
+            ) {
 
-            echo
-                "Comando nao encontrado."
-                . PHP_EOL;
+                echo
+                    "ACK invalido: "
+                    . $error->getMessage()
+                    . PHP_EOL;
 
-            return;
-        }
-
-        echo
-            "Comando {$commandId} executado."
-            . PHP_EOL;
-    },
-
-    0
+                return;
+            }
+    }
 );
 
 

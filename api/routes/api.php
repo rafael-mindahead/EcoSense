@@ -26,6 +26,8 @@ use App\Services\DeviceService;
 use App\Services\SensorLimitService;
 use App\Services\AlertService;
 
+use App\Services\ActuatorService;
+
 
 $router->get('/api/health', function () {
 
@@ -213,19 +215,21 @@ $router->post('/api/v1/actuators/fan', function () {
 
     $connection = Database::connect();
 
-    $repository =
-        new ActuatorCommandRepository(
-            $connection
-        );
+    $repository = new ActuatorCommandRepository($connection);
 
-    $mqtt =
-        new MqttService();
+    $deviceRepository = new DeviceRepository($connection);
 
-    $controller =
-        new ActuatorController(
-            $repository,
-            $mqtt
-        );
+    $deviceService = new DeviceService($deviceRepository);
+
+    $mqtt = new MqttService();
+
+    $service = new ActuatorService(
+        $repository,
+        $mqtt,
+        $deviceService
+    );
+
+    $controller = new ActuatorController($service);
 
     $controller->control('fan');
 });
@@ -235,19 +239,21 @@ $router->post('/api/v1/actuators/exhaust', function () {
 
     $connection = Database::connect();
 
-    $repository =
-        new ActuatorCommandRepository(
-            $connection
-        );
+    $repository = new ActuatorCommandRepository($connection);
 
-    $mqtt =
-        new MqttService();
+    $deviceRepository = new DeviceRepository($connection);
 
-    $controller =
-        new ActuatorController(
-            $repository,
-            $mqtt
-        );
+    $deviceService = new DeviceService($deviceRepository);
+
+    $mqtt = new MqttService();
+
+    $service = new ActuatorService(
+        $repository,
+        $mqtt,
+        $deviceService
+    );
+
+    $controller = new ActuatorController($service);
 
     $controller->control('exhaust');
 });

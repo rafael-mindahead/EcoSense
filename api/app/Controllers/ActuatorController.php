@@ -3,14 +3,12 @@
 namespace App\Controllers;
 
 use App\Core\Response;
-use App\Repositories\ActuatorCommandRepository;
-use App\Services\MqttService;
+use App\Services\ActuatorService;
 
 class ActuatorController
 {
     public function __construct(
-        private ActuatorCommandRepository $repository,
-        private MqttService $mqtt
+        private ActuatorService $service
     ) {
     }
 
@@ -34,93 +32,41 @@ class ActuatorController
                 return;
             }
 
-            if (!isset($body['device_id'])) {
-
-                Response::json([
-                    'error' => 'device_id is required'
-                ], 422);
-
-                return;
-            }
-
-            if (!isset($body['command'])) {
-
-                Response::json([
-                    'error' => 'command is required'
-                ], 422);
-
-                return;
-            }
-
-            $deviceId =
-                (int) $body['device_id'];
-
-            $command =
-                strtoupper($body['command']);
-
-            if (!in_array(
-                $command,
-                ['ON', 'OFF'],
-                true
-            )) {
-
-                Response::json([
-                    'error' => 'command must be ON or OFF'
-                ], 422);
-
-                return;
-            }
-
-            $commandRecord =
-                $this->repository->create(
-                    $deviceId,
+            $result =
+                $this->service->control(
                     $actuator,
-                    $command
+                    $body
                 );
-
-            $topic =
-                "ecosense/device/{$deviceId}/commands/{$actuator}";
-
-            $this->mqtt->publish(
-                $topic,
-                [
-                    'command_id' =>
-                        (int) $commandRecord['id'],
-
-                    'command' =>
-                        $command
-                ]
-            );
-
-            $this->repository->markSent(
-                (int) $commandRecord['id']
-            );
 
             Response::json([
                 'message' => 'Command sent',
-                'data' => [
-                    'id' =>
-                        (int) $commandRecord['id'],
-
-                    'device_id' =>
-                        $deviceId,
-
-                    'actuator' =>
-                        $actuator,
-
-                    'command' =>
-                        $command,
-
-                    'status' =>
-                        'sent'
-                ]
+                'data' => $result
             ], 201);
+
+        } catch (
+            \InvalidArgumentException $error
+        ) {
+
+            Response::json([
+                'error' =>
+                    $error->getMessage()
+            ], 422);
+
+        } catch (
+            \RuntimeException $error
+        ) {
+
+            Response::json([
+                'error' =>
+                    $error->getMessage()
+            ], 404);
 
         } catch (\Throwable $error) {
 
             Response::json([
                 'status' => 'error',
-                'message' => $error->getMessage()
+                'message' =>
+                    $error->getMessage()
             ], 500);
         }
     }

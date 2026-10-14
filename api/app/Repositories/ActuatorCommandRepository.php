@@ -65,18 +65,21 @@ class ActuatorCommandRepository
                 status = 'executed',
                 executed_at = CURRENT_TIMESTAMP
             WHERE id = :id
+            AND status = 'sent'
             RETURNING *
         ";
 
-        $statement = $this->connection->prepare($sql);
+        $statement =
+            $this->connection->prepare($sql);
 
         $statement->execute([
             ':id' => $id
         ]);
 
-        $command = $statement->fetch(
-            PDO::FETCH_ASSOC
-        );
+        $command =
+            $statement->fetch(
+                PDO::FETCH_ASSOC
+            );
 
         return $command ?: null;
     }
