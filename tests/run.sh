@@ -13,6 +13,7 @@ bash tests/api/meansurements.sh
 bash tests/api/devices.sh
 bash tests/api/sensor_limits.sh
 bash tests/api/alerts.sh
+bash tests/api/actuators.sh
 bash tests/mqtt/telemetry.sh
 
 echo
