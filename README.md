@@ -39,7 +39,7 @@ MeansurementService
   ├── MeansurementRepository
   ├── DeviceRepository
   ├── SensorLimitRepository
-  └── AlertRepository
+  └── AlertService → AlertRepository
   ↓
 PostgreSQL
   ↓
@@ -54,6 +54,8 @@ Web / iOS
 Web / iOS
   ↓ REST
 PHP API
+  ↓
+ActuatorService
   ↓
 MqttService
   ↓ MQTT
@@ -99,10 +101,12 @@ Worker     → adaptação MQTT
 
 - `MeansurementService` — concluído;
 - `DeviceService` — concluído;
-- `SensorLimitService` — próximo;
-- `AlertService` — pendente;
-- `ActuatorService` — pendente;
-- `MqttService` — implementado, revisão final pendente.
+- `SensorLimitService` — concluído;
+- `AlertService` — concluído;
+- `ActuatorService` — concluído;
+- `MqttService` — concluído.
+
+**MCS V1: 100% concluído.**
 
 ## Tecnologias
 
@@ -192,7 +196,7 @@ copiando para:
 esp32/include/secrets.h
 ```
 
-O arquivo `secrets.h` é local e não deve ser versionado.
+O arquivo `secrets.h` é local e não deve ser versionado. Além das credenciais Wi-Fi, ele também define `MQTT_HOST`, evitando manter o IP do broker fixo no código-fonte.
 
 O firmware atual publica telemetria simulada em:
 
@@ -279,6 +283,8 @@ A suíte cobre atualmente:
 - consulta e validação de devices;
 - validações de sensor limits;
 - listagem e validação de alertas;
+- comandos de atuadores e transição `sent → executed` por ACK;
+- proteção contra ACK duplicado sem derrubar o consumer;
 - fluxo MQTT → consumer → PostgreSQL;
 - proteção contra gravação MQTT duplicada;
 - rejeição de telemetria MQTT inválida sem derrubar o consumer.
@@ -325,8 +331,8 @@ docker compose logs -f mqtt_consumer
 - consumer MQTT;
 - persistência de telemetria;
 - API REST;
-- `MeansurementService` centralizado;
-- `DeviceService` centralizado;
+- camada MCS V1 concluída;
+- `MeansurementService`, `DeviceService`, `SensorLimitService`, `AlertService`, `ActuatorService` e `MqttService` centralizados;
 - validação compartilhada entre REST e MQTT;
 - histórico por device e período;
 - status online/offline por `last_seen`;
@@ -339,13 +345,12 @@ docker compose logs -f mqtt_consumer
 
 ### Próximos passos
 
-- concluir `SensorLimitService`;
-- concluir `AlertService`;
-- concluir `ActuatorService`;
-- revisar `MqttService`;
+- servir o dashboard Web pela infraestrutura Docker/Nginx;
+- conectar o histórico do dashboard ao Chart.js;
+- implementar assinatura de comandos e ACK real no firmware ESP32;
 - integrar sensores físicos ao ESP32;
-- finalizar e servir o dashboard Web pela infraestrutura;
-- iniciar aplicação iOS.
+- finalizar páginas Web de histórico, alertas, dispositivos e configurações;
+- iniciar aplicação iOS consumindo os mesmos contratos da API.
 
 ## Segurança
 
