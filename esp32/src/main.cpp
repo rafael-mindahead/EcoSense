@@ -5,7 +5,6 @@
 #include "secrets.h"
 
 namespace {
-constexpr char MQTT_HOST[] = "192.168.1.18";
 constexpr uint16_t MQTT_PORT = 1883;
 constexpr char TELEMETRY_TOPIC[] = "ecosense/device/1/telemetry";
 constexpr unsigned long TELEMETRY_INTERVAL_MS = 5000;
@@ -43,7 +42,12 @@ void connectMqtt()
         Serial.print("Conectando ao MQTT...");
 
         String clientId = "EcoSense-ESP32-";
-        clientId += String(static_cast<uint32_t>(ESP.getEfuseMac()), HEX);
+        clientId += String(
+            static_cast<uint32_t>(
+                ESP.getEfuseMac()
+            ),
+            HEX
+        );
 
         if (mqttClient.connect(clientId.c_str())) {
             Serial.println(" conectado!");
