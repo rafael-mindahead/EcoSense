@@ -14,9 +14,9 @@ constexpr uint8_t DHT_TYPE = 22;
 constexpr uint8_t LDR_PIN = 34;
 constexpr uint8_t AIR_QUALITY_PIN = 35;
 
-constexpr uint8_t FAN_RELAY_PIN = 26;
-constexpr uint8_t EXHAUST_RELAY_PIN = 27;
-constexpr bool RELAY_ACTIVE_HIGH = true;
+constexpr uint8_t FAN_DRIVER_PIN = 26;
+constexpr uint8_t EXHAUST_DRIVER_PIN = 27;
+constexpr bool ACTUATOR_DRIVER_ACTIVE_HIGH = true;
 
 constexpr uint8_t INTERRUPT_PIN = 0;
 
