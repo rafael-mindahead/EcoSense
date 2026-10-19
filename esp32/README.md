@@ -15,7 +15,7 @@ ESP32 + FreeRTOS
    ├── Configuração Wi-Fi
    ├── OTA
    ├── Light Sleep
-   ├── Atuadores por relé
+   ├── Atuadores DC via drivers MOSFET
    └── MQTT opcional para integração externa
 ```
 
@@ -24,13 +24,17 @@ ESP32 + FreeRTOS
 Entradas:
 
 - DHT22 em GPIO 4 — temperatura e umidade;
-- LDR em GPIO 34 — luminosidade;
-- entrada analógica de qualidade do ar em GPIO 35.
+- LDR analógico em GPIO 34 — luminosidade;
+- a implementação atual mantém uma entrada analógica de qualidade do ar em GPIO 35;
+- para a montagem final está planejado ENS160 + AHT21 via I2C, que ainda será integrado ao firmware.
 
 Saídas:
 
-- relé do ventilador em GPIO 26;
-- relé do exaustor em GPIO 27.
+- driver MOSFET D4184 do ventilador em GPIO 26;
+- driver MOSFET D4184 do exaustor em GPIO 27;
+- dois coolers de 12 V alimentados por fonte externa 12 V / 2 A.
+
+Os 12 V dos atuadores não passam pelos GPIOs do ESP32. Os GPIOs 26 e 27 fornecem apenas o sinal lógico de controle aos D4184.
 
 Interrupção:
 
@@ -145,11 +149,12 @@ MQTT deixa de ser dependência obrigatória do núcleo local. Quando disponível
 
 ## Pendências físicas
 
-O código está preparado para sensores, relés, interrupção e servidor embarcado, mas a conformidade final do TDE depende da montagem real:
+O código está preparado para DHT22, LDR, drivers D4184, interrupção e servidor embarcado. A conformidade final do TDE ainda depende da montagem real:
 
-- conectar no mínimo dois sensores reais;
-- conectar dois dispositivos de acionamento reais que não sejam LED/buzzer;
-- validar os pinos da montagem;
+- conectar e validar os sensores reais;
+- integrar o ENS160 + AHT21 ao firmware se ele for mantido no escopo final;
+- conectar dois coolers 12 V aos drivers D4184;
+- validar a fonte externa de 12 V e a montagem elétrica;
 - acondicionar o sistema em caixa apropriada;
 - preencher nomes e e-mails da equipe na página Sobre;
 - coletar evidências de testes, performance e consumo de energia.
