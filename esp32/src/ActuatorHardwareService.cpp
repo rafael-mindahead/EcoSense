@@ -6,25 +6,25 @@ void ActuatorHardwareService::begin()
 {
     pinMode(
         EcoSenseConfig::
-            FAN_RELAY_PIN,
+            FAN_DRIVER_PIN,
         OUTPUT
     );
 
     pinMode(
         EcoSenseConfig::
-            EXHAUST_RELAY_PIN,
+            EXHAUST_DRIVER_PIN,
         OUTPUT
     );
 
-    writeRelay(
+    writeDriver(
         EcoSenseConfig::
-            FAN_RELAY_PIN,
+            FAN_DRIVER_PIN,
         false
     );
 
-    writeRelay(
+    writeDriver(
         EcoSenseConfig::
-            EXHAUST_RELAY_PIN,
+            EXHAUST_DRIVER_PIN,
         false
     );
 }
@@ -62,9 +62,9 @@ bool ActuatorHardwareService::execute(
     ) {
         fanState = on;
 
-        writeRelay(
+        writeDriver(
             EcoSenseConfig::
-                FAN_RELAY_PIN,
+                FAN_DRIVER_PIN,
             on
         );
 
@@ -77,9 +77,9 @@ bool ActuatorHardwareService::execute(
     ) {
         exhaustState = on;
 
-        writeRelay(
+        writeDriver(
             EcoSenseConfig::
-                EXHAUST_RELAY_PIN,
+                EXHAUST_DRIVER_PIN,
             on
         );
 
@@ -102,7 +102,7 @@ bool ActuatorHardwareService::exhaustOn() const
     return exhaustState;
 }
 
-void ActuatorHardwareService::writeRelay(
+void ActuatorHardwareService::writeDriver(
     uint8_t pin,
     bool on
 )
@@ -111,7 +111,7 @@ void ActuatorHardwareService::writeRelay(
         (
             on ==
             EcoSenseConfig::
-                RELAY_ACTIVE_HIGH
+                ACTUATOR_DRIVER_ACTIVE_HIGH
         )
             ? HIGH
             : LOW;
