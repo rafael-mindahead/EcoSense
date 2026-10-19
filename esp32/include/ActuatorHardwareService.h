@@ -20,7 +20,7 @@ private:
     bool fanState = false;
     bool exhaustState = false;
 
-    void writeRelay(
+    void writeDriver(
         uint8_t pin,
         bool on
     );
