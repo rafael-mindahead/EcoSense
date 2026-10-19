@@ -27,16 +27,32 @@ Esta matriz acompanha a reforma em que o ESP32 passa a ser o servidor principal 
 | Gerenciamento de energia | Light Sleep acionável pela Web |
 | C/C++ | firmware PlatformIO/Arduino C++ |
 | GitHub público | repositório EcoSense |
-| Dois sensores previstos | DHT22 + LDR; entrada de qualidade do ar adicional |
-| Dois acionamentos previstos | fan + exhaust por relés |
+| Dois sensores mínimos | DHT22 + LDR; ENS160 + AHT21 planejado como sensor adicional |
+| Dois acionamentos previstos | fan + exhaust, ambos coolers 12 V comandados por drivers MOSFET D4184 |
 | MQTT opcional | integração externa sem ser dependência do servidor local |
+
+## Hardware definido para a montagem
+
+- ESP32 DevKit WROOM-32;
+- DHT22 / AM2302;
+- módulo LDR analógico;
+- ENS160 + AHT21 planejado para qualidade do ar;
+- 2x D4184 compatíveis com controle lógico de 3,3 V;
+- 2x coolers 12 V;
+- fonte externa 12 V / 2 A;
+- conector P4 fêmea com borne;
+- protoboards e jumpers;
+- caixa física na etapa final.
+
+Os relés inicialmente previstos não fazem mais parte da arquitetura física. O ESP32 fornece apenas o sinal lógico aos D4184; a potência dos dois coolers vem da fonte externa de 12 V.
 
 ## Exige validação física antes da entrega
 
 Os itens abaixo não podem ser considerados concluídos apenas por código:
 
 - sensores conectados e medindo valores reais;
-- ventilador e exaustor (ou outros dois atuadores válidos) conectados por relé;
+- ventilador e exaustor conectados aos dois D4184 e alimentados pela fonte externa;
+- integração do ENS160 + AHT21 caso seja mantido no escopo final;
 - montagem elétrica segura;
 - caixa física;
 - testes individuais dos sensores;
@@ -60,7 +76,7 @@ A página Sobre possui a estrutura exigida, mas ainda precisa receber:
 5. Alteração de Wi-Fi pela interface.
 6. Exportação dos logs persistidos.
 7. Upload OTA.
-8. Acionamento de fan/exhaust.
+8. Acionamento independente dos dois coolers via D4184.
 9. Histórico local de 24h.
 10. Pressão do botão de interrupção aparecendo no log.
 11. Light Sleep acionado pela Web.
