@@ -1,5 +1,9 @@
+
 services:
 
+  # =====================================
+  # MQTT CONSUMER
+  # =====================================
   mqtt_consumer:
     build:
       context: .
@@ -18,7 +22,6 @@ services:
       DB_NAME: ${POSTGRES_DB}
       DB_USER: ${POSTGRES_USER}
       DB_PASSWORD: ${POSTGRES_PASSWORD}
-
       MQTT_HOST: mosquitto
       MQTT_PORT: 1883
 
@@ -31,8 +34,13 @@ services:
     networks:
       - ecosense_network
 
+
+  # =====================================
+  # NGINX - API + INTERFACE WEB
+  # =====================================
   nginx:
     image: nginx:alpine
+
     container_name: ecosense_nginx
 
     ports:
@@ -40,7 +48,8 @@ services:
 
     volumes:
       - ./api:/var/www/html
-      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
+      - ./web:/var/www/web:ro
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
 
     depends_on:
       - php
@@ -49,6 +58,9 @@ services:
       - ecosense_network
 
 
+  # =====================================
+  # PHP - API REST
+  # =====================================
   php:
     build:
       context: .
@@ -76,8 +88,12 @@ services:
       - ecosense_network
 
 
+  # =====================================
+  # POSTGRESQL
+  # =====================================
   postgres:
     image: postgres:17
+
     container_name: ecosense_postgres
 
     restart: unless-stopped
@@ -97,8 +113,12 @@ services:
       - ecosense_network
 
 
+  # =====================================
+  # MOSQUITTO - MQTT BROKER
+  # =====================================
   mosquitto:
     image: eclipse-mosquitto:2
+
     container_name: ecosense_mosquitto
 
     ports:
@@ -112,10 +132,16 @@ services:
       - ecosense_network
 
 
+# =====================================
+# VOLUMES
+# =====================================
 volumes:
   postgres_data:
 
 
+# =====================================
+# NETWORKS
+# =====================================
 networks:
   ecosense_network:
     driver: bridge

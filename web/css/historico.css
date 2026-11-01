@@ -1,0 +1,131 @@
+/* PAINÉIS */
+.history-panel {
+    margin-top: 20px;
+}
+
+/* ÁREA DOS FILTROS */
+.history-filters {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 16px;
+    align-items: end;
+}
+
+/* LABELS */
+.history-filters label,
+.metric-label {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--text);
+}
+
+/* INPUTS E SELECTS */
+.history-filters input,
+.history-filters select,
+.metric-label select {
+    width: 100%;
+
+    padding: 11px 12px;
+
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+
+    background: var(--surface);
+    color: var(--text);
+
+    font: inherit;
+}
+
+/* BOTÃO DE BUSCA */
+.history-filters .btn {
+    min-height: 44px;
+}
+
+/* GRÁFICO */
+.history-chart {
+    position: relative;
+
+    height: 330px;
+    width: 100%;
+
+    margin-top: 18px;
+}
+
+/* TABELA */
+.history-table-scroll {
+    width: 100%;
+    overflow-x: auto;
+    margin-top: 14px;
+}
+
+.history-table {
+    border-collapse: collapse;
+
+    width: 100%;
+    min-width: 680px;
+
+    text-align: left;
+    font-size: 14px;
+}
+
+/* CÉLULAS */
+.history-table th,
+.history-table td {
+    padding: 13px 12px;
+
+    border-bottom: 1px solid var(--border);
+
+    white-space: nowrap;
+}
+
+/* CABEÇALHO */
+.history-table th {
+    color: var(--green-900);
+    background: var(--surface-soft);
+}
+
+/* MENSAGENS */
+.history-message {
+    margin-top: 12px;
+    color: var(--text-soft);
+}
+
+/* ========================================
+   RESPONSIVIDADE - TABLET
+   ======================================== */
+
+@media (max-width: 1100px) {
+
+    .history-filters {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+}
+
+/* ========================================
+   RESPONSIVIDADE - CELULAR
+   ======================================== */
+
+@media (max-width: 720px) {
+
+    .history-filters {
+        grid-template-columns: 1fr;
+    }
+
+    .history-chart {
+        height: 260px;
+    }
+
+    .history-panel {
+        padding: 16px;
+    }
+
+    .history-table {
+        font-size: 13px;
+    }
+
+}

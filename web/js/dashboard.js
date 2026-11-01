@@ -123,69 +123,71 @@ async function loadApiStatus() {
 }
 
 async function loadLatestMeasurement() {
-    try {
-        const measurement =
-            await getLatestMeasurement();
+     try {
+        const measurement = await getLatestMeasurement();
+
+        if (!measurement || typeof measurement !== "object") {
+            throw new Error("Medição inválida");
+        }
 
         showText(
             "temperature",
-            `${Number(
-                measurement.temperature
-            ).toFixed(1)} °C`
+            formatSensor(measurement.temperature, "°C", 1)
         );
 
         showText(
             "humidity",
-            `${Number(
-                measurement.humidity
-            ).toFixed(1)} %`
+            formatSensor(measurement.humidity, "%", 1)
         );
 
         showText(
             "luminosity",
-            `${Number(
-                measurement.luminosity
-            ).toFixed(0)} lx`
+            formatSensor(measurement.luminosity, "lx", 0)
         );
 
         showText(
             "air-quality",
-            `${Number(
-                measurement.air_quality
-            ).toFixed(0)}`
+            formatSensor(measurement.air_quality, "", 0)
         );
 
         showText(
             "last-update",
-            formatDate(
-                measurement.created_at
-            )
+            formatDate(measurement.created_at)
         );
 
-        /*
-         * Também podemos usar o
-         * device_id recebido na medição
-         * caso ainda não exista outro.
-         */
-        if (!currentDeviceId) {
-            currentDeviceId =
-                Number(
-                    measurement.device_id
-                );
+        if (!currentDeviceId && measurement.device_id) {
+            currentDeviceId = Number(measurement.device_id);
         }
 
     } catch (error) {
+        console.error("Erro ao carregar medições:", error);
 
-        console.error(
-            "Erro ao carregar medição:",
-            error
-        );
+        showText("temperature", "-- °C");
+        showText("humidity", "-- %");
+        showText("luminosity", "-- lx");
+        showText("air-quality", "--");
 
         showText(
             "last-update",
-            "Não foi possível carregar os dados."
+            "Medições indisponíveis"
         );
     }
+}
+
+function formatSensor(value, unit, decimals) {
+    if (value === null || value === undefined || value === "") {
+        return "--" + (unit ? ` ${unit}` : "");
+    }
+
+    const number = Number(value);
+
+    if (!Number.isFinite(number)) {
+        return "--" + (unit ? ` ${unit}` : "");
+    }
+
+    const formatted = number.toFixed(decimals);
+
+    return unit ? `${formatted} ${unit}` : formatted;
 }
 
 async function loadDevices() {
