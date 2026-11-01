@@ -195,11 +195,10 @@
                             </option>
                         </select>
                     </div>
-                    <div class="chart-placeholder">
-                        <p>
-                            📈 O gráfico será conectado ao Chart.js
-                        </p>
-                    </div>
+                   <div class="chart-container"
+                    style="position: relative; height: 280px; width: 100%;">
+                   <canvas id="sensor-chart"></canvas>
+                   </div>
                 </article>
                 <article class="panel">
                     <div class="panel-header">
@@ -312,6 +311,7 @@
             </section>
         </main>
     </div>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
     <script type="module" src="/js/dashboard.js"></script>
 </body>
 </html>

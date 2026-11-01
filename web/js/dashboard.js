@@ -1,12 +1,12 @@
 import {
     getApiHealth,
     getLatestMeasurement,
+    getMeasurements,
     getDevices,
     getAlerts,
     controlFan,
     controlExhaust
 } from "./api.js";
-
 
 let currentDeviceId = null;
 
@@ -594,27 +594,139 @@ function setupActuatorButtons() {
     );
 }
 
-async function refreshDashboard() {
+let sensorChart = null;
 
+async function loadSensorChart() {
+    const canvas = document.getElementById("sensor-chart");
+    const filter = document.getElementById("chart-filter");
+
+    if (!canvas || !filter || typeof Chart === "undefined") {
+        return;
+    }
+
+    try {
+        const response = await getMeasurements(50);
+
+        const measurements = Array.isArray(response)
+            ? response
+            : response.data || [];
+
+        // A API retorna os registros mais recentes primeiro.
+        // Invertemos para exibir do mais antigo ao mais novo.
+        const ordered = [...measurements].reverse();
+
+        const metrics = {
+            temperature: {
+                label: "Temperatura",
+                unit: "°C",
+                color: "#e88a62"
+            },
+            humidity: {
+                label: "Umidade",
+                unit: "%",
+                color: "#68afd4"
+            },
+            luminosity: {
+                label: "Luminosidade",
+                unit: "lx",
+                color: "#dfb443"
+            },
+            air_quality: {
+                label: "Qualidade do ar",
+                unit: "",
+                color: "#368c5b"
+            }
+        };
+
+        const metric = filter.value;
+        const selected = metrics[metric] || metrics.temperature;
+
+        const labels = ordered.map(measurement =>
+            formatDate(measurement.created_at)
+        );
+
+        const values = ordered.map(measurement =>
+            measurement[metric] == null
+                ? null
+                : Number(measurement[metric])
+        );
+
+        if (sensorChart) {
+            sensorChart.destroy();
+        }
+
+        sensorChart = new Chart(canvas, {
+            type: "line",
+
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: selected.label,
+                    data: values,
+                    borderColor: selected.color,
+                    backgroundColor: selected.color,
+                    borderWidth: 3,
+                    tension: 0.3,
+                    pointRadius: 5,
+                    pointHoverRadius: 7,
+                    spanGaps: false
+                }]
+            },
+
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: "top"
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: context =>
+                                `${selected.label}: ${context.parsed.y} ${selected.unit}`
+                        }
+                    }
+                },
+
+                scales: {
+                    x: {
+                        ticks: {
+                            maxTicksLimit: 6
+                        }
+                    },
+                    y: {
+                        beginAtZero: false
+                    }
+                }
+            }
+        });
+
+    } catch (error) {
+        console.error("Erro ao carregar gráfico:", error);
+    }
+}
+
+async function refreshDashboard() {
     await Promise.allSettled([
         loadApiStatus(),
         loadLatestMeasurement(),
         loadDevices(),
-        loadAlerts()
+        loadAlerts(),
+        loadSensorChart()
     ]);
 }
 
-document.addEventListener(
-    "DOMContentLoaded",
-    async () => {
+document.addEventListener("DOMContentLoaded", async () => {
 
-        setupActuatorButtons();
+    setupActuatorButtons();
 
-        await refreshDashboard();
+    const filter = document.getElementById("chart-filter");
 
-        setInterval(
-            refreshDashboard,
-            5000
-        );
-    }
-);
+    filter?.addEventListener("change", loadSensorChart);
+
+    await refreshDashboard();
+
+    setInterval(refreshDashboard, 5000);
+});
