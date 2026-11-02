@@ -1,3 +1,7 @@
+/* =========================
+   EcoSense - Dashboard
+   ========================= */
+
 * {
     margin: 0;
     padding: 0;
@@ -832,32 +836,39 @@ body {
     }
 
 }
+/* =========================
+   Histórico / Alertas
+   ========================= */
+.page-toolbar{display:flex;align-items:flex-end;justify-content:space-between;gap:18px;margin-bottom:22px}
+.page-toolbar h2{font-size:28px;color:var(--green-900)}
+.page-toolbar p{margin-top:5px;color:var(--text-soft);font-size:14px}
+.toolbar-actions{display:flex;align-items:center;gap:10px}
+.field{display:flex;flex-direction:column;gap:6px}
+.field label{color:var(--text-soft);font-size:12px;font-weight:600}
+.field select{min-width:180px;padding:10px 12px;border:1px solid var(--border);border-radius:10px;background:var(--surface);color:var(--text);outline:none}
+.chart-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;margin-bottom:22px}
+.chart-container{position:relative;height:310px}
+.table-wrapper{overflow-x:auto}
+.data-table{width:100%;border-collapse:collapse;font-size:13px}
+.data-table th,.data-table td{padding:12px 10px;border-bottom:1px solid var(--border);text-align:left;white-space:nowrap}
+.data-table th{color:var(--text-soft);font-size:11px;text-transform:uppercase;letter-spacing:.04em}
+.alert-page-list{display:flex;flex-direction:column;gap:12px}
+.alert-page-item{display:grid;grid-template-columns:46px 1fr auto;gap:14px;align-items:center;padding:16px;border:1px solid var(--border);border-radius:16px;background:#fbfdfb}
+.alert-page-item.is-resolved{opacity:.72}
+.alert-page-icon{width:46px;height:46px;border-radius:14px;display:flex;align-items:center;justify-content:center;background:#fff3df;font-size:20px}
+.alert-page-content h4{color:var(--green-900);margin-bottom:4px}
+.alert-page-content p{color:var(--text-soft);font-size:13px;line-height:1.45}
+.alert-page-content small{display:block;margin-top:6px;color:var(--text-soft);font-size:11px}
+.alert-actions{display:flex;align-items:center;gap:8px}
+.status-pill{display:inline-flex;align-items:center;padding:5px 9px;border-radius:999px;font-size:11px;font-weight:700}
+.status-pill.open{background:#fff0d5;color:#98651c}
+.status-pill.resolved{background:#e5f4e9;color:var(--green-700)}
+.btn-danger{background:#b74b4b;color:white}
+.btn-danger:hover{background:#9e3f3f;transform:translateY(-1px)}
+.btn:disabled{cursor:wait;opacity:.55;transform:none}
+.page-message{padding:18px;border-radius:14px;background:var(--surface-soft);color:var(--text-soft);text-align:center;font-size:13px}
+.error-message{background:#fff0f0;color:var(--danger)}
+@media (max-width:900px){.chart-grid{grid-template-columns:1fr}.page-toolbar{align-items:flex-start;flex-direction:column}.toolbar-actions{width:100%}.field{width:100%}.field select{width:100%}}
+@media (max-width:650px){.alert-page-item{grid-template-columns:42px 1fr}.alert-actions{grid-column:2;justify-content:flex-start}}
 
-
-/* Componentes compartilhados do EcoSense */
-
-.page-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-lg);
-    padding: 24px;
-    box-shadow: var(--shadow);
-    margin-bottom: 20px;
-}
-
-.page-card h3 {
-    color: var(--green-900);
-    font-size: 20px;
-    margin-bottom: 12px;
-}
-
-.page-card p {
-    color: var(--text-soft);
-    line-height: 1.6;
-}
-
-@media (max-width: 720px) {
-    .page-card {
-        padding: 16px;
-    }
-}
+.chart-container{position:relative;min-height:280px;height:280px;width:100%;}
