@@ -1,4 +1,8 @@
-const API_BASE_URL = "/api";
+const API_BASE_URL =
+    window.ECOSENSE_API_BASE_URL ||
+    (window.location.port === "8080"
+        ? "/api"
+        : "http://localhost:8080/api");
 
 async function apiRequest(endpoint, options = {}) {
     try {
@@ -46,7 +50,7 @@ export async function getLatestMeasurement() {
 }
 
 export async function getMeasurements(
-    limit = 50
+    limit = 100
 ) {
     return apiRequest(
         `/v1/meansurements?limit=${limit}`
@@ -119,4 +123,10 @@ export async function getSensorLimits() {
     return apiRequest(
         "/v1/sensor-limits"
     );
+}
+export async function saveSensorLimit(limit) {
+    return apiRequest("/v1/sensor-limits", {
+        method: "POST",
+        body: JSON.stringify(limit)
+    });
 }
