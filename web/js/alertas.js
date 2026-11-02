@@ -1,10 +1,274 @@
 import { getAlerts, resolveAlert } from "./api.js";
-let alerts=[];
-const fmt=v=>{if(!v)return"--";const d=new Date(v);return Number.isNaN(d.getTime())?v:d.toLocaleString("pt-BR",{dateStyle:"short",timeStyle:"short"})};
-const label=m=>({temperature:"Temperatura",humidity:"Umidade",luminosity:"Luminosidade",air_quality:"Qualidade do ar"}[m]||m||"Sensor");
-function filtered(){const f=document.getElementById("alert-filter").value;return f==="all"?alerts:alerts.filter(a=>a.status===f)}
-function counters(){const o=alerts.filter(a=>a.status==="open").length,r=alerts.filter(a=>a.status==="resolved").length;document.getElementById("open-alerts-count").textContent=o;document.getElementById("resolved-alerts-count").textContent=r;document.getElementById("total-alerts-count").textContent=alerts.length;document.getElementById("alert-count").textContent=o}
-function render(){const c=document.getElementById("alerts-list-page"),m=document.getElementById("alerts-message"),rows=filtered();c.innerHTML="";if(!rows.length){m.hidden=false;m.classList.remove("error-message");m.textContent="Nenhum alerta encontrado para o filtro selecionado.";document.getElementById("alerts-summary").textContent="0 alertas";return}m.hidden=true;document.getElementById("alerts-summary").textContent=`${rows.length} alerta(s) exibido(s)`;rows.forEach(a=>{const item=document.createElement("article");item.className=`alert-page-item ${a.status==="resolved"?"is-resolved":""}`;const icon=document.createElement("div");icon.className="alert-page-icon";icon.textContent=a.status==="resolved"?"✓":"⚠️";const content=document.createElement("div");content.className="alert-page-content";const title=document.createElement("h4");title.textContent=label(a.metric);const body=document.createElement("p");body.textContent=a.message||"Alerta detectado";const meta=document.createElement("small");meta.textContent=`Dispositivo ${a.device_id??"--"} • Valor: ${a.value??"--"} • Criado em ${fmt(a.created_at)}${a.resolved_at?` • Resolvido em ${fmt(a.resolved_at)}`:""}`;content.append(title,body,meta);const actions=document.createElement("div");actions.className="alert-actions";const status=document.createElement("span");status.className=`status-pill ${a.status}`;status.textContent=a.status==="open"?"Aberto":"Resolvido";actions.appendChild(status);if(a.status==="open"){const b=document.createElement("button");b.type="button";b.className="btn btn-danger";b.textContent="Resolver";b.addEventListener("click",()=>handleResolve(a.id,b));actions.appendChild(b)}item.append(icon,content,actions);c.appendChild(item)})}
-async function handleResolve(id,b){b.disabled=true;b.textContent="Resolvendo...";try{await resolveAlert(id);const a=alerts.find(x=>Number(x.id)===Number(id));if(a){a.status="resolved";a.resolved_at=new Date().toISOString()}counters();render()}catch(e){b.disabled=false;b.textContent="Resolver";alert(`Não foi possível resolver o alerta: ${e.message}`)}}
-async function load(){const m=document.getElementById("alerts-message");m.hidden=false;m.classList.remove("error-message");m.textContent="Carregando alertas...";try{const r=await getAlerts();alerts=Array.isArray(r)?r:r.data||[];counters();render()}catch(e){m.hidden=false;m.classList.add("error-message");m.textContent=`Não foi possível carregar os alertas: ${e.message}`}}
-document.addEventListener("DOMContentLoaded",()=>{document.getElementById("alert-filter").addEventListener("change",render);document.getElementById("alerts-refresh").addEventListener("click",load);load()});
+
+// =====================================
+// VARIÁVEIS GLOBAIS
+// =====================================
+
+let alerts = [];
+
+// =====================================
+// FORMATAÇÃO DOS DADOS
+// =====================================
+
+// Formata a data e a hora no padrão brasileiro
+const fmt = (value) => {
+    if (!value) {
+        return "--";
+    }
+
+    const date = new Date(value);
+
+    return Number.isNaN(date.getTime())
+        ? value
+        : date.toLocaleString("pt-BR", {
+            dateStyle: "short",
+            timeStyle: "short"
+        });
+};
+
+// Traduz os nomes das métricas
+const label = (metric) => {
+    const metrics = {
+        temperature: "Temperatura",
+        humidity: "Umidade",
+        luminosity: "Luminosidade",
+        air_quality: "Qualidade do ar"
+    };
+
+    return metrics[metric] || metric || "Sensor";
+};
+
+// =====================================
+// FILTRO DE ALERTAS
+// =====================================
+
+function filtered() {
+    const filter = document.getElementById("alert-filter").value;
+
+    if (filter === "all") {
+        return alerts;
+    }
+
+    return alerts.filter((alert) => alert.status === filter);
+}
+
+// =====================================
+// CONTADORES DE ALERTAS
+// =====================================
+
+function counters() {
+    const open = alerts.filter(
+        (alert) => alert.status === "open"
+    ).length;
+
+    const resolved = alerts.filter(
+        (alert) => alert.status === "resolved"
+    ).length;
+
+    document.getElementById("open-alerts-count").textContent = open;
+
+    document.getElementById("resolved-alerts-count").textContent = resolved;
+
+    document.getElementById("total-alerts-count").textContent = alerts.length;
+
+    document.getElementById("alert-count").textContent = open;
+}
+
+// =====================================
+// EXIBIÇÃO DOS ALERTAS
+// =====================================
+
+function render() {
+    const container = document.getElementById("alerts-list-page");
+    const message = document.getElementById("alerts-message");
+
+    const rows = filtered();
+
+    container.innerHTML = "";
+
+    // Nenhum alerta encontrado
+    if (!rows.length) {
+        message.hidden = false;
+        message.classList.remove("error-message");
+
+        message.textContent =
+            "Nenhum alerta encontrado para o filtro selecionado.";
+
+        document.getElementById("alerts-summary").textContent =
+            "0 alertas";
+
+        return;
+    }
+
+    message.hidden = true;
+
+    document.getElementById("alerts-summary").textContent =
+        `${rows.length} alerta(s) exibido(s)`;
+
+    // Cria os cards de alerta
+    rows.forEach((alert) => {
+        const item = document.createElement("article");
+
+        item.className = `alert-page-item ${
+            alert.status === "resolved" ? "is-resolved" : ""
+        }`;
+
+        // Ícone
+        const icon = document.createElement("div");
+
+        icon.className = "alert-page-icon";
+
+        icon.textContent =
+            alert.status === "resolved" ? "✓" : "⚠️";
+
+        // Conteúdo
+        const content = document.createElement("div");
+
+        content.className = "alert-page-content";
+
+        // Título
+        const title = document.createElement("h4");
+
+        title.textContent = label(alert.metric);
+
+        // Descrição
+        const body = document.createElement("p");
+
+        body.textContent = alert.message || "Alerta detectado";
+
+        // Informações adicionais
+        const meta = document.createElement("small");
+
+        meta.textContent =
+            `Dispositivo ${alert.device_id ?? "--"} ` +
+            `• Valor: ${alert.value ?? "--"} ` +
+            `• Criado em ${fmt(alert.created_at)}` +
+            (
+                alert.resolved_at
+                    ? ` • Resolvido em ${fmt(alert.resolved_at)}`
+                    : ""
+            );
+
+        content.append(title, body, meta);
+
+        // Ações do alerta
+        const actions = document.createElement("div");
+
+        actions.className = "alert-actions";
+
+        // Status
+        const status = document.createElement("span");
+
+        status.className = `status-pill ${alert.status}`;
+
+        status.textContent =
+            alert.status === "open" ? "Aberto" : "Resolvido";
+
+        actions.appendChild(status);
+
+        // Botão Resolver, somente para alertas abertos
+        if (alert.status === "open") {
+            const button = document.createElement("button");
+
+            button.type = "button";
+            button.className = "btn btn-danger";
+            button.textContent = "Resolver";
+
+            button.addEventListener("click", () => {
+                handleResolve(alert.id, button);
+            });
+
+            actions.appendChild(button);
+        }
+
+        item.append(icon, content, actions);
+
+        container.appendChild(item);
+    });
+}
+
+// =====================================
+// RESOLVER ALERTA
+// =====================================
+
+async function handleResolve(id, button) {
+    button.disabled = true;
+    button.textContent = "Resolvendo...";
+
+    try {
+        // Envia a solicitação para a API
+        await resolveAlert(id);
+
+        // Atualiza o alerta local
+        const alert = alerts.find(
+            (item) => Number(item.id) === Number(id)
+        );
+
+        if (alert) {
+            alert.status = "resolved";
+            alert.resolved_at = new Date().toISOString();
+        }
+
+        // Atualiza contadores e lista
+        counters();
+        render();
+
+    } catch (error) {
+        button.disabled = false;
+        button.textContent = "Resolver";
+
+        window.alert(
+            `Não foi possível resolver o alerta: ${error.message}`
+        );
+    }
+}
+
+// =====================================
+// CARREGAR ALERTAS DA API
+// =====================================
+
+async function load() {
+    const message = document.getElementById("alerts-message");
+
+    message.hidden = false;
+    message.classList.remove("error-message");
+
+    message.textContent = "Carregando alertas...";
+
+    try {
+        // Busca alertas no backend
+        const response = await getAlerts();
+
+        alerts = Array.isArray(response)
+            ? response
+            : response.data || [];
+
+        // Atualiza a página
+        counters();
+        render();
+
+    } catch (error) {
+        message.hidden = false;
+        message.classList.add("error-message");
+
+        message.textContent =
+            `Não foi possível carregar os alertas: ${error.message}`;
+    }
+}
+
+// =====================================
+// INICIALIZAÇÃO DA PÁGINA
+// =====================================
+
+document.addEventListener("DOMContentLoaded", () => {
+    // Atualiza a lista ao mudar o filtro
+    document.getElementById("alert-filter")
+        .addEventListener("change", render);
+
+    // Atualiza a lista ao clicar no botão
+    document.getElementById("alerts-refresh")
+        .addEventListener("click", load);
+
+    // Carrega os alertas ao abrir a página
+    load();
+});

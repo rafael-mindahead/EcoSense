@@ -1,1 +1,171 @@
-<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>EcoSense | Controle</title><link rel="stylesheet" href="../css/style.css"></head><body><div class="app-container"><aside class="sidebar"><div class="logo-area"><h1>🌿 EcoSense</h1></div><nav class="menu"><a class="menu-item" href="dashboard.html">Dashboard</a><a class="menu-item" href="historico.html">Histórico</a><a class="menu-item" href="alertas.html">Alertas</a><a class="menu-item" href="dispositivos.html">Dispositivos</a><a class="menu-item active" href="controle.html">Controle</a><a class="menu-item" href="configuracoes.html">Configurações</a></nav></aside><main class="main-content"><header class="topbar"><div><h2>Controle de atuadores</h2><p>Envie comandos ao ventilador e ao exaustor.</p></div></header><p id="message" role="status"></p><section class="sensor-grid"><article class="sensor-card"><h3>Ventilador</h3><label>ID do dispositivo <input id="fan-id" type="number" min="1" value="1"></label><button data-actuator="fan" data-command="ON">Ligar</button> <button data-actuator="fan" data-command="OFF">Desligar</button><p id="fan-state">Aguardando comando</p></article><article class="sensor-card"><h3>Exaustor</h3><label>ID do dispositivo <input id="exhaust-id" type="number" min="1" value="1"></label><button data-actuator="exhaust" data-command="ON">Ligar</button> <button data-actuator="exhaust" data-command="OFF">Desligar</button><p id="exhaust-state">Aguardando comando</p></article></section></main></div><script type="module" src="../js/controle.js"></script></body></html>
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EcoSense | Controle</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+    <div class="app-container">
+
+        <aside class="sidebar">
+            <div class="logo-area">
+                <div class="logo-icon">🌿</div>
+
+                <div>
+                    <h1>EcoSense</h1>
+                    <span>Monitoramento Ambiental</span>
+                </div>
+            </div>
+
+            <nav class="menu">
+                <a href="/dashboard" class="menu-item">
+                    <span>🏠</span> Dashboard
+                </a>
+
+                <a href="/historico" class="menu-item">
+                    <span>📊</span> Histórico
+                </a>
+
+                <a href="/alertas" class="menu-item">
+                    <span>🔔</span> Alertas
+                </a>
+
+                <a href="/dispositivos" class="menu-item">
+                    <span>⚙️</span> Dispositivos
+                </a>
+
+                <a href="/controle" class="menu-item active">
+                    <span>🌀</span> Controle
+                </a>
+
+                <a href="/configuracoes" class="menu-item">
+                    <span>🔧</span> Configurações
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <p>Tecnologia para um ambiente mais inteligente.</p>
+            </div>
+        </aside>
+
+        <main class="main-content">
+
+            <header class="topbar">
+                <div>
+                    <h2>Controle de atuadores 🌀</h2>
+                    <p>Gerencie o ventilador e o exaustor do ambiente.</p>
+                </div>
+            </header>
+
+            <p id="message" role="status" aria-live="polite"></p>
+
+            <section class="control-grid">
+
+                <article class="control-card">
+                    <div class="control-card-heading">
+                        <span class="control-icon">🌀</span>
+
+                        <div>
+                            <h4>Ventilador</h4>
+                            <p>Controle da circulação do ar</p>
+                        </div>
+                    </div>
+
+                    <label class="control-label" for="fan-id">
+                        ID do dispositivo
+                    </label>
+
+                    <input
+                        id="fan-id"
+                        class="control-input"
+                        type="number"
+                        min="1"
+                        value="1"
+                    >
+
+                    <div class="control-buttons">
+                        <button
+                            type="button"
+                            class="btn btn-primary"
+                            data-actuator="fan"
+                            data-command="ON"
+                        >
+                            Ligar
+                        </button>
+
+                        <button
+                            type="button"
+                            class="btn btn-secondary"
+                            data-actuator="fan"
+                            data-command="OFF"
+                        >
+                            Desligar
+                        </button>
+                    </div>
+
+                    <p id="fan-state" class="control-feedback">
+                        Aguardando comando
+                    </p>
+                </article>
+
+                <article class="control-card">
+                    <div class="control-card-heading">
+                        <span class="control-icon">💨</span>
+
+                        <div>
+                            <h4>Exaustor</h4>
+                            <p>Controle da renovação do ar</p>
+                        </div>
+                    </div>
+
+                    <label class="control-label" for="exhaust-id">
+                        ID do dispositivo
+                    </label>
+
+                    <input
+                        id="exhaust-id"
+                        class="control-input"
+                        type="number"
+                        min="1"
+                        value="1"
+                    >
+
+                    <div class="control-buttons">
+                        <button
+                            type="button"
+                            class="btn btn-primary"
+                            data-actuator="exhaust"
+                            data-command="ON"
+                        >
+                            Ligar
+                        </button>
+
+                        <button
+                            type="button"
+                            class="btn btn-secondary"
+                            data-actuator="exhaust"
+                            data-command="OFF"
+                        >
+                            Desligar
+                        </button>
+                    </div>
+
+                    <p id="exhaust-state" class="control-feedback">
+                        Aguardando comando
+                    </p>
+                </article>
+
+            </section>
+
+        </main>
+    </div>
+
+    <script type="module" src="/js/controle.js"></script>
+
+</body>
+</html>

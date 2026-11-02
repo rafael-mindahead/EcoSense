@@ -1,22 +1,254 @@
 <!DOCTYPE html>
-<html lang="pt-BR"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>EcoSense | Histórico</title><link rel="stylesheet" href="../css/style.css">
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.0/dist/chart.umd.min.js"></script></head>
-<body><div class="app-container"><aside class="sidebar">
-<div class="logo-area"><div class="logo-icon">🌿</div><div><h1>EcoSense</h1><span>Monitoramento Ambiental</span></div></div>
-<nav class="menu"><a href="dashboard.html" class="menu-item"><span>🏠</span>Dashboard</a>
-<a href="historico.html" class="menu-item active"><span>📊</span>Histórico</a>
-<a href="alertas.html" class="menu-item"><span>🔔</span>Alertas<span class="alert-badge" id="alert-count">0</span></a>
-<a href="dispositivos.html" class="menu-item"><span>⚙️</span>Dispositivos</a>
-<a href="#" class="menu-item"><span>🌀</span>Controle</a>
-<a href="configuracoes.html" class="menu-item"><span>🔧</span>Configurações</a></nav><div class="sidebar-footer"><p>Tecnologia para um ambiente mais inteligente.</p></div></aside>
-<main class="main-content"><header class="page-toolbar"><div><h2>Histórico de medições</h2><p>Consulte as últimas 100 medições e acompanhe a evolução dos sensores.</p></div>
-<div class="toolbar-actions"><div class="field"><label for="history-device">Dispositivo</label><select id="history-device"><option value="all">Todos</option></select></div><button class="btn btn-primary" id="history-refresh" type="button">Atualizar</button></div></header>
-<section class="chart-grid">
-<article class="panel"><div class="panel-header"><div><h3>Temperatura e umidade</h3><p>Variação ao longo das medições.</p></div></div><div class="chart-container"><canvas id="environment-chart"></canvas></div></article>
-<article class="panel"><div class="panel-header"><div><h3>Luminosidade</h3><p>Intensidade luminosa registrada.</p></div></div><div class="chart-container"><canvas id="luminosity-chart"></canvas></div></article>
-<article class="panel"><div class="panel-header"><div><h3>Qualidade do ar</h3><p>Índice registrado pelo sensor.</p></div></div><div class="chart-container"><canvas id="air-chart"></canvas></div></article></section>
-<section class="panel"><div class="panel-header"><div><h3>Medições recentes</h3><p id="history-summary">Carregando...</p></div></div>
-<div id="history-message" class="page-message">Carregando histórico...</div>
-<div class="table-wrapper" id="history-table-wrapper" hidden><table class="data-table"><thead><tr><th>Data</th><th>Dispositivo</th><th>Temperatura</th><th>Umidade</th><th>Luminosidade</th><th>Qualidade do ar</th></tr></thead><tbody id="history-table-body"></tbody></table></div></section>
-</main></div><script type="module" src="../js/historico.js"></script></body></html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>EcoSense | Histórico</title>
+
+    <!-- CSS PRINCIPAL -->
+    <link rel="stylesheet" href="/css/style.css">
+
+    <!-- BIBLIOTECA DE GRÁFICOS -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.0/dist/chart.umd.min.js"></script>
+</head>
+
+<body>
+    <div class="app-container">
+
+        <!-- MENU LATERAL -->
+        <aside class="sidebar">
+
+            <div class="logo-area">
+
+                <div class="logo-icon">🌿</div>
+
+                <div>
+                    <h1>EcoSense</h1>
+                    <span>Monitoramento Ambiental</span>
+                </div>
+
+            </div>
+
+            <nav class="menu">
+
+                <a href="/dashboard" class="menu-item">
+                    <span>🏠</span>
+                    Dashboard
+                </a>
+
+                <a href="/historico" class="menu-item active">
+                    <span>📊</span>
+                    Histórico
+                </a>
+
+                <a href="/alertas" class="menu-item">
+                    <span>🔔</span>
+                    Alertas
+                    <span class="alert-badge" id="alert-count">0</span>
+                </a>
+
+                <a href="/dispositivos" class="menu-item">
+                    <span>⚙️</span>
+                    Dispositivos
+                </a>
+
+                <a href="/controle" class="menu-item">
+                    <span>🌀</span>
+                    Controle
+                </a>
+
+                <a href="/configuracoes" class="menu-item">
+                    <span>🔧</span>
+                    Configurações
+                </a>
+
+            </nav>
+
+            <div class="sidebar-footer">
+                <p>
+                    Tecnologia para um ambiente mais inteligente.
+                </p>
+            </div>
+
+        </aside>
+
+        <!-- CONTEÚDO PRINCIPAL -->
+        <main class="main-content">
+
+            <!-- CABEÇALHO E FILTROS -->
+            <header class="page-toolbar">
+
+                <div>
+                    <h2>Histórico de medições 📊</h2>
+
+                    <p>
+                        Consulte as últimas 100 medições e acompanhe
+                        a evolução dos sensores.
+                    </p>
+                </div>
+
+                <div class="toolbar-actions">
+
+                    <!-- FILTRO POR DISPOSITIVO -->
+                    <div class="field">
+
+                        <label for="history-device">
+                            Dispositivo
+                        </label>
+
+                        <select id="history-device">
+                            <option value="all">Todos</option>
+                        </select>
+
+                    </div>
+
+                    <!-- BOTÃO ATUALIZAR -->
+                    <button
+                        type="button"
+                        id="history-refresh"
+                        class="btn btn-primary"
+                    >
+                        Atualizar
+                    </button>
+
+                </div>
+
+            </header>
+
+            <!-- GRÁFICOS DOS SENSORES -->
+            <section class="chart-grid">
+
+                <!-- TEMPERATURA E UMIDADE -->
+                <article class="panel">
+
+                    <div class="panel-header">
+
+                        <div>
+                            <h3>Temperatura e umidade</h3>
+
+                            <p>
+                                Variação ao longo das medições.
+                            </p>
+                        </div>
+
+                    </div>
+
+                    <div class="chart-container">
+                        <canvas id="environment-chart"></canvas>
+                    </div>
+
+                </article>
+
+                <!-- LUMINOSIDADE -->
+                <article class="panel">
+
+                    <div class="panel-header">
+
+                        <div>
+                            <h3>Luminosidade</h3>
+
+                            <p>
+                                Intensidade luminosa registrada.
+                            </p>
+                        </div>
+
+                    </div>
+
+                    <div class="chart-container">
+                        <canvas id="luminosity-chart"></canvas>
+                    </div>
+
+                </article>
+
+                <!-- QUALIDADE DO AR -->
+                <article class="panel">
+
+                    <div class="panel-header">
+
+                        <div>
+                            <h3>Qualidade do ar</h3>
+
+                            <p>
+                                Índice registrado pelo sensor.
+                            </p>
+                        </div>
+
+                    </div>
+
+                    <div class="chart-container">
+                        <canvas id="air-chart"></canvas>
+                    </div>
+
+                </article>
+
+            </section>
+
+            <!-- HISTÓRICO DE MEDIÇÕES -->
+            <section class="panel">
+
+                <div class="panel-header">
+
+                    <div>
+                        <h3>Medições recentes</h3>
+
+                        <p id="history-summary">
+                            Carregando...
+                        </p>
+                    </div>
+
+                </div>
+
+                <!-- MENSAGENS DO SISTEMA -->
+                <div
+                    id="history-message"
+                    class="page-message"
+                    role="status"
+                    aria-live="polite"
+                >
+                    Carregando histórico...
+                </div>
+
+                <!-- TABELA DE MEDIÇÕES -->
+                <div
+                    class="table-wrapper"
+                    id="history-table-wrapper"
+                    hidden
+                >
+
+                    <table class="data-table">
+
+                        <thead>
+                            <tr>
+                                <th>Data</th>
+                                <th>Dispositivo</th>
+                                <th>Temperatura</th>
+                                <th>Umidade</th>
+                                <th>Luminosidade</th>
+                                <th>Qualidade do ar</th>
+                            </tr>
+                        </thead>
+
+                        <tbody id="history-table-body">
+                            <!-- Preenchido pelo historico.js -->
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </section>
+
+        </main>
+
+    </div>
+
+    <!-- JAVASCRIPT DA PÁGINA HISTÓRICO -->
+    <script
+        type="module"
+        src="/js/historico.js"
+    ></script>
+
+</body>
+</html>

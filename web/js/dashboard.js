@@ -144,7 +144,7 @@ async function loadDashboardChart() {
 }
 
 function renderDashboardChart(metric) {
-    const canvas = document.getElementById("dashboard-chart");
+    const canvas = document.getElementById("sensor-chart");
     if (!canvas || typeof Chart === "undefined") return;
 
     const labels = measurements
