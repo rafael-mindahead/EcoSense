@@ -54,6 +54,7 @@ private:
     uint32_t restartAtMs = 0;
 
     void registerRoutes();
+    bool serveEmbeddedAsset(const String& route);
 
     void sendJson(
         int status,
