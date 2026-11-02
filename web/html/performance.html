@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EcoSense | Performance</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div class="app-container">
+    <aside class="sidebar">
+        <div class="logo-area"><div class="logo-icon">🌿</div><div><h1>EcoSense</h1><span>Monitoramento Ambiental</span></div></div>
+        <nav class="menu"></nav>
+        <div class="sidebar-footer"><p>Servidor embarcado ESP32.</p></div>
+    </aside>
+    <main class="main-content">
+        <header class="topbar">
+            <div><h2>Performance ⚡</h2><p>Métricas de desempenho, memória, tasks, rede, sensores e OTA do ESP32.</p></div>
+            <div class="system-status"><span class="status-dot"></span><div><strong id="perf-status">Carregando</strong><small>ESP32</small></div></div>
+        </header>
+
+        <section class="metric-grid">
+            <article class="metric-card"><span>CPU estimada</span><strong id="cpu">--</strong><small>%</small></article>
+            <article class="metric-card"><span>Heap livre</span><strong id="heap">--</strong><small>bytes</small></article>
+            <article class="metric-card"><span>Flash</span><strong id="flash">--</strong><small>bytes</small></article>
+            <article class="metric-card"><span>Tasks</span><strong id="task-count">--</strong><small>threads/tasks</small></article>
+        </section>
+
+        <section class="content-grid">
+            <article class="panel">
+                <div class="panel-header"><div><h3>Memória e rede</h3><p>Heap, PSRAM, Wi-Fi, AP e RSSI.</p></div></div>
+                <pre id="memory-network" class="mono-block">Carregando...</pre>
+            </article>
+            <article class="panel">
+                <div class="panel-header"><div><h3>Última leitura</h3><p>Valores lidos diretamente pelo ESP32.</p></div></div>
+                <div class="stack-list">
+                    <p>Temperatura <strong id="perf-temperature">--</strong></p>
+                    <p>Umidade <strong id="perf-humidity">--</strong></p>
+                    <p>Luminosidade <strong id="perf-luminosity">--</strong></p>
+                    <p>Qualidade do ar <strong id="perf-air">--</strong></p>
+                </div>
+            </article>
+        </section>
+
+        <section class="panel page-card">
+            <div class="panel-header"><div><h3>Tempo de execução das funções</h3><p>Último, médio e máximo em microssegundos.</p></div></div>
+            <div class="table-wrapper"><table class="data-table"><thead><tr><th>Função</th><th>Último µs</th><th>Média µs</th><th>Máximo µs</th></tr></thead><tbody id="timings-body"></tbody></table></div>
+        </section>
+
+        <section class="content-grid">
+            <article class="panel">
+                <div class="panel-header"><div><h3>Stack por task</h3><p>High-water mark das tasks registradas.</p></div></div>
+                <div class="table-wrapper"><table class="data-table"><thead><tr><th>Task</th><th>Stack livre</th></tr></thead><tbody id="tasks-body"></tbody></table></div>
+            </article>
+            <article class="panel">
+                <div class="panel-header"><div><h3>Histórico 24h</h3><p>Temperatura armazenada em flash.</p></div></div>
+                <div class="chart-container"><canvas id="performance-chart"></canvas></div>
+            </article>
+        </section>
+
+        <section class="panel page-card">
+            <div class="panel-header"><div><h3>OTA — atualização de firmware</h3><p>Envie o firmware.bin gerado pelo PlatformIO.</p></div></div>
+            <form id="ota-form" class="form-grid">
+                <div class="field"><label for="firmware">Firmware</label><input id="firmware" name="firmware" type="file" accept=".bin" required></div>
+                <button class="btn btn-primary" type="submit">Atualizar firmware</button>
+            </form>
+            <p id="ota-message" class="page-message" hidden></p>
+        </section>
+    </main>
+</div>
+<script type="module" src="/js/performance.js"></script>
+</body>
+</html>

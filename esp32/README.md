@@ -1,6 +1,6 @@
 # EcoSense ESP32 Server
 
-Nesta branch o ESP32 deixa de ser apenas um cliente de telemetria e passa a operar como **servidor autônomo do EcoSense**.
+O ESP32 opera como **servidor autônomo do EcoSense** e serve diretamente a interface oficial localizada em `web/`.
 
 O núcleo do projeto funciona mesmo sem PHP, PostgreSQL ou dashboard externo:
 
@@ -65,10 +65,12 @@ Se `ECOSENSE_AP_PASSWORD` não estiver definido em um arquivo local antigo, o fi
 
 ## Compilar e gravar
 
+O build incorpora automaticamente os arquivos de `../web/` ao firmware. A tabela `partitions_ota.csv` reserva duas partições de aplicação para preservar OTA e uma partição LittleFS de aproximadamente 1,1 MB para histórico/logs.
+
 ```bash
-~/.platformio/penv/bin/pio run
-~/.platformio/penv/bin/pio run --target upload
-~/.platformio/penv/bin/pio device monitor
+pio run -d esp32
+pio run -d esp32 --target upload
+pio device monitor
 ```
 
 ## Acesso Web
@@ -81,7 +83,7 @@ Se ele não conseguir conectar à rede configurada, após alguns segundos ele di
 EcoSense-Setup
 ```
 
-A interface embarcada inclui:
+A interface da pasta `web/`, incorporada ao firmware, inclui:
 
 - Dashboard;
 - Performance;

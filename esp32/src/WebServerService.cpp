@@ -4,7 +4,7 @@
 #include <LittleFS.h>
 
 #include "AppConfig.h"
-#include "WebAssets.h"
+#include "GeneratedWebAssets.h"
 
 WebServerService::WebServerService(
     ConfigService& config,
@@ -81,28 +81,9 @@ void WebServerService::registerRoutes()
         "/",
         HTTP_GET,
         [this]() {
-            server.send_P(
-                200,
-                "text/html; charset=utf-8",
-                ECOSENSE_WEB_APP
-            );
-        }
-    );
-
-    server.on(
-        "/performance",
-        HTTP_GET,
-        [this]() {
-            server.sendHeader(
-                "Location",
-                "/#performance"
-            );
-
-            server.send(
-                302,
-                "text/plain",
-                ""
-            );
+            if (!serveEmbeddedAsset("/dashboard")) {
+                sendError(500, "embedded dashboard not found");
+            }
         }
     );
 
@@ -484,12 +465,42 @@ void WebServerService::registerRoutes()
 
     server.onNotFound(
         [this]() {
+            const String uri =
+                server.uri();
+
+            if (
+                !uri.startsWith("/api/") &&
+                serveEmbeddedAsset(uri)
+            ) {
+                return;
+            }
+
             sendError(
                 404,
                 "route not found"
             );
         }
     );
+}
+
+bool WebServerService::serveEmbeddedAsset(
+    const String& route
+)
+{
+    const EmbeddedWebAsset* asset =
+        findEmbeddedWebAsset(route);
+
+    if (asset == nullptr) {
+        return false;
+    }
+
+    server.send_P(
+        200,
+        asset->contentType,
+        asset->content
+    );
+
+    return true;
 }
 
 void WebServerService::sendJson(

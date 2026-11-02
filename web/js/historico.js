@@ -1,26 +1,12 @@
+import "./navigation.js";
 import { getMeasurements, getDevices } from "./api.js";
-
-// =====================================
-// VARIÁVEIS GLOBAIS
-// =====================================
-
-const charts = {};
 
 let measurements = [];
 let devices = [];
 
-// =====================================
-// FORMATAÇÃO DOS DADOS
-// =====================================
-
-// Formata datas no padrão brasileiro
-const fmt = (value) => {
-    if (!value) {
-        return "--";
-    }
-
+const fmt = value => {
+    if (!value) return "--";
     const date = new Date(value);
-
     return Number.isNaN(date.getTime())
         ? value
         : date.toLocaleString("pt-BR", {
@@ -29,359 +15,146 @@ const fmt = (value) => {
         });
 };
 
-// Formata valores numéricos
-const num = (value, decimals = 1) => {
-    if (value === null || value === undefined || value === "") {
-        return "--";
-    }
+const num = (value, decimals = 1) =>
+    Number.isFinite(Number(value)) ? Number(value).toFixed(decimals) : "--";
 
-    return Number.isFinite(Number(value))
-        ? Number(value).toFixed(decimals)
-        : "--";
-};
+function drawSeries(canvasId, series) {
+    const canvas = document.getElementById(canvasId);
+    if (!canvas) return;
 
-// Busca o nome do dispositivo pelo ID
-const devName = (id) => {
-    const device = devices.find(
-        (item) => Number(item.id) === Number(id)
-    );
+    const ratio = window.devicePixelRatio || 1;
+    const width = Math.max(canvas.clientWidth, 320);
+    const height = Math.max(canvas.clientHeight, 260);
+    canvas.width = width * ratio;
+    canvas.height = height * ratio;
 
-    return device?.name || `Dispositivo ${id ?? "--"}`;
-};
+    const ctx = canvas.getContext("2d");
+    ctx.scale(ratio, ratio);
+    ctx.clearRect(0, 0, width, height);
 
-// =====================================
-// FILTRAGEM E ORDENAÇÃO
-// =====================================
-
-// Filtra as medições pelo dispositivo selecionado
-function rows() {
-    const selected = document.getElementById("history-device").value;
-
-    return measurements
-        .filter((item) => {
-            return selected === "all" ||
-                Number(item.device_id) === Number(selected);
-        })
-        .slice()
-        .sort((a, b) => {
-            return new Date(a.created_at) - new Date(b.created_at);
-        });
-}
-
-// =====================================
-// DATAS DOS GRÁFICOS
-// =====================================
-
-// Cria os rótulos do eixo horizontal
-function labels(rows) {
-    return rows.map((item) => {
-        const date = new Date(item.created_at);
-
-        if (Number.isNaN(date.getTime())) {
-            return String(item.created_at ?? "--");
-        }
-
-        return date.toLocaleString("pt-BR", {
-            day: "2-digit",
-            month: "2-digit",
-            hour: "2-digit",
-            minute: "2-digit"
-        });
-    });
-}
-
-// =====================================
-// CRIAÇÃO DOS GRÁFICOS
-// =====================================
-
-// Destrói o gráfico anterior e cria um novo
-function make(name, elementId, type, data, options = {}) {
-    if (charts[name]) {
-        charts[name].destroy();
-    }
-
-    charts[name] = new Chart(
-        document.getElementById(elementId),
-        {
-            type: type,
-            data: data,
-
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-
-                interaction: {
-                    mode: "index",
-                    intersect: false
-                },
-
-                plugins: {
-                    legend: {
-                        position: "bottom"
-                    }
-                },
-
-                ...options
-            }
-        }
-    );
-}
-
-// =====================================
-// EXIBIÇÃO DOS GRÁFICOS
-// =====================================
-
-function renderCharts(rows) {
-    const chartLabels = labels(rows);
-
-    // GRÁFICO 1 - TEMPERATURA E UMIDADE
-    make(
-        "environment",
-        "environment-chart",
-        "line",
-        {
-            labels: chartLabels,
-
-            datasets: [
-                {
-                    label: "Temperatura (°C)",
-                    data: rows.map(
-                        (item) => Number(item.temperature)
-                    ),
-                    borderWidth: 2,
-                    tension: 0.25,
-                    pointRadius: 2
-                },
-                {
-                    label: "Umidade (%)",
-                    data: rows.map(
-                        (item) => Number(item.humidity)
-                    ),
-                    borderWidth: 2,
-                    tension: 0.25,
-                    pointRadius: 2
-                }
-            ]
-        }
-    );
-
-    // GRÁFICO 2 - LUMINOSIDADE
-    make(
-        "luminosity",
-        "luminosity-chart",
-        "line",
-        {
-            labels: chartLabels,
-
-            datasets: [
-                {
-                    label: "Luminosidade (lx)",
-                    data: rows.map(
-                        (item) => Number(item.luminosity)
-                    ),
-                    borderWidth: 2,
-                    tension: 0.25,
-                    pointRadius: 2
-                }
-            ]
-        },
-        {
-            scales: {
-                y: {
-                    beginAtZero: true
-                }
-            }
-        }
-    );
-
-    // GRÁFICO 3 - QUALIDADE DO AR
-    make(
-        "air",
-        "air-chart",
-        "line",
-        {
-            labels: chartLabels,
-
-            datasets: [
-                {
-                    label: "Qualidade do ar",
-                    data: rows.map(
-                        (item) => Number(item.air_quality)
-                    ),
-                    borderWidth: 2,
-                    tension: 0.25,
-                    pointRadius: 2
-                }
-            ]
-        },
-        {
-            scales: {
-                y: {
-                    beginAtZero: true
-                }
-            }
-        }
-    );
-}
-
-// =====================================
-// EXIBIÇÃO DA TABELA
-// =====================================
-
-function renderTable(rows) {
-    const message = document.getElementById("history-message");
-
-    const wrapper = document.getElementById(
-        "history-table-wrapper"
-    );
-
-    const body = document.getElementById(
-        "history-table-body"
-    );
-
-    body.innerHTML = "";
-
-    // Nenhuma medição encontrada
-    if (!rows.length) {
-        wrapper.hidden = true;
-        message.hidden = false;
-
-        message.textContent =
-            "Nenhuma medição encontrada para o filtro selecionado.";
-
-        document.getElementById("history-summary").textContent =
-            "0 medições";
-
+    const allValues = series.flatMap(item => item.values).filter(Number.isFinite);
+    if (!allValues.length) {
+        ctx.fillStyle = "#68736d";
+        ctx.font = "14px sans-serif";
+        ctx.fillText("Sem histórico disponível", 20, 30);
         return;
     }
 
-    // Mostra a tabela
+    const min = Math.min(...allValues);
+    const max = Math.max(...allValues);
+    const range = Math.max(max - min, 1);
+    const padding = 26;
+    const tones = ["#2f6f4f", "#6fa7c8", "#d8b04c"];
+
+    series.forEach((item, seriesIndex) => {
+        ctx.strokeStyle = tones[seriesIndex % tones.length];
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+
+        item.values.forEach((value, index) => {
+            if (!Number.isFinite(value)) return;
+            const x = padding + index * ((width - padding * 2) /
+                Math.max(item.values.length - 1, 1));
+            const y = height - padding - ((value - min) / range) *
+                (height - padding * 2);
+            if (index === 0) ctx.moveTo(x, y);
+            else ctx.lineTo(x, y);
+        });
+
+        ctx.stroke();
+        ctx.fillStyle = tones[seriesIndex % tones.length];
+        ctx.font = "12px sans-serif";
+        ctx.fillText(item.label, padding + seriesIndex * 130, 16);
+    });
+}
+
+function renderCharts(rows) {
+    drawSeries("environment-chart", [
+        {
+            label: "Temperatura °C",
+            values: rows.map(item => item.dht_valid ? Number(item.temperature) : NaN)
+        },
+        {
+            label: "Umidade %",
+            values: rows.map(item => item.dht_valid ? Number(item.humidity) : NaN)
+        }
+    ]);
+
+    drawSeries("luminosity-chart", [{
+        label: "Luminosidade ADC",
+        values: rows.map(item => Number(item.luminosity))
+    }]);
+
+    drawSeries("air-chart", [{
+        label: "Qualidade do ar ADC",
+        values: rows.map(item => Number(item.air_quality))
+    }]);
+}
+
+function renderTable(rows) {
+    const message = document.getElementById("history-message");
+    const wrapper = document.getElementById("history-table-wrapper");
+    const body = document.getElementById("history-table-body");
+    body.innerHTML = "";
+
+    if (!rows.length) {
+        wrapper.hidden = true;
+        message.hidden = false;
+        message.textContent = "Ainda não há histórico armazenado no ESP32.";
+        document.getElementById("history-summary").textContent = "0 medições";
+        return;
+    }
+
     message.hidden = true;
     wrapper.hidden = false;
-
     document.getElementById("history-summary").textContent =
-        `${rows.length} medição(ões) carregada(s)`;
+        rows.length + " ponto(s) das últimas 24 horas";
 
-    // Exibe as medições mais recentes primeiro
-    rows.slice().reverse().forEach((item) => {
+    rows.slice().reverse().forEach(item => {
         const tr = document.createElement("tr");
-
         const values = [
             fmt(item.created_at),
-            devName(item.device_id),
-            `${num(item.temperature)} °C`,
-            `${num(item.humidity)} %`,
-            `${num(item.luminosity, 0)} lx`,
-            num(item.air_quality, 0)
+            devices[0]?.name || "EcoSense ESP32",
+            item.dht_valid ? num(item.temperature) + " °C" : "N/A",
+            item.dht_valid ? num(item.humidity) + " %" : "N/A",
+            num(item.luminosity, 0) + " ADC",
+            num(item.air_quality, 0) + " ADC"
         ];
 
-        values.forEach((value) => {
+        values.forEach(value => {
             const td = document.createElement("td");
             td.textContent = value;
             tr.appendChild(td);
         });
-
         body.appendChild(tr);
     });
 }
 
-// =====================================
-// ATUALIZAÇÃO DA PÁGINA
-// =====================================
-
-// Atualiza gráficos e tabela
 function render() {
-    const filteredRows = rows();
-
-    renderCharts(filteredRows);
-    renderTable(filteredRows);
+    renderCharts(measurements);
+    renderTable(measurements);
 }
-
-// =====================================
-// FILTRO DE DISPOSITIVOS
-// =====================================
-
-// Preenche o campo com os dispositivos cadastrados
-function populate() {
-    const select = document.getElementById("history-device");
-
-    select.innerHTML = '<option value="all">Todos</option>';
-
-    devices.forEach((device) => {
-        const option = document.createElement("option");
-
-        option.value = device.id;
-
-        option.textContent =
-            device.name || `Dispositivo ${device.id}`;
-
-        select.appendChild(option);
-    });
-}
-
-// =====================================
-// CARREGAMENTO DOS DADOS DA API
-// =====================================
 
 async function load() {
     const message = document.getElementById("history-message");
-
     message.hidden = false;
-    message.classList.remove("error-message");
-
-    message.textContent =
-        "Carregando as últimas 100 medições...";
+    message.textContent = "Carregando histórico local de 24 horas...";
 
     try {
-        // Busca medições e dispositivos simultaneamente
-        const [measurementsResponse, devicesResponse] =
-            await Promise.all([
-                getMeasurements(100),
-                getDevices()
-            ]);
-
-        // Armazena as medições
-        measurements = Array.isArray(measurementsResponse)
-            ? measurementsResponse
-            : measurementsResponse.data || [];
-
-        // Armazena os dispositivos
-        devices = Array.isArray(devicesResponse)
-            ? devicesResponse
-            : devicesResponse.data || [];
-
-        // Preenche o filtro e atualiza a página
-        populate();
+        [measurements, devices] = await Promise.all([
+            getMeasurements(),
+            getDevices()
+        ]);
         render();
-
     } catch (error) {
-        console.error("Erro ao carregar histórico:", error);
-
-        message.hidden = false;
         message.classList.add("error-message");
-
-        message.textContent =
-            `Não foi possível carregar o histórico: ${error.message}`;
-
-        document.getElementById(
-            "history-table-wrapper"
-        ).hidden = true;
+        message.textContent = "Falha ao carregar histórico: " + error.message;
+        document.getElementById("history-table-wrapper").hidden = true;
     }
 }
 
-// =====================================
-// INICIALIZAÇÃO
-// =====================================
-
 document.addEventListener("DOMContentLoaded", () => {
-    // Atualiza gráficos e tabela ao trocar o dispositivo
-    document.getElementById("history-device")
-        .addEventListener("change", render);
-
-    // Busca novamente os dados ao clicar em Atualizar
-    document.getElementById("history-refresh")
-        .addEventListener("click", load);
-
-    // Carrega os dados ao abrir a página
+    document.getElementById("history-device")?.closest(".field")?.remove();
+    document.getElementById("history-refresh")?.addEventListener("click", load);
     load();
 });

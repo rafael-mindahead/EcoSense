@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - reformar/requisito
+      - tde/front-esp32-integration
   pull_request:
     branches:
       - main
