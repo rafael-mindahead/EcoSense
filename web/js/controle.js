@@ -1,105 +1,53 @@
-
+import "./navigation.js";
 import {
     controlFan,
-    controlExhaust
+    controlExhaust,
+    getStatus
 } from "./api.js";
 
-function showText(elementId, value) {
-    const element = document.getElementById(elementId);
-
-    if (element) {
-        element.textContent = value;
-    }
+function showText(id, value) {
+    const element = document.getElementById(id);
+    if (element) element.textContent = value;
 }
 
-function setButtonsDisabled(disabled) {
-    const buttons = document.querySelectorAll(
-        "button[data-actuator][data-command]"
-    );
-
-    buttons.forEach((button) => {
-        button.disabled = disabled;
-    });
+async function refreshStates() {
+    try {
+        const status = await getStatus();
+        showText("fan-state", status.fan_on ? "Ligado" : "Desligado");
+        showText("exhaust-state", status.exhaust_on ? "Ligado" : "Desligado");
+    } catch {
+        showText("message", "Não foi possível consultar o ESP32.");
+    }
 }
 
 async function sendCommand(actuator, command, button) {
-    const inputId = actuator === "fan"
-        ? "fan-id"
-        : "exhaust-id";
-
-    const statusId = actuator === "fan"
-        ? "fan-state"
-        : "exhaust-state";
-
-    const deviceId = Number(
-        document.getElementById(inputId).value
-    );
-
-    if (!Number.isInteger(deviceId) || deviceId < 1) {
-        showText(
-            "message",
-            "Informe um ID de dispositivo válido."
-        );
-        return;
-    }
-
-    setButtonsDisabled(true);
-
-    showText(statusId, "Enviando comando...");
-    showText("message", "");
+    const buttons = document.querySelectorAll("button[data-actuator][data-command]");
+    buttons.forEach(item => item.disabled = true);
+    const oldText = button.textContent;
+    button.textContent = "Enviando...";
 
     try {
         if (actuator === "fan") {
-            await controlFan(deviceId, command);
-        } else if (actuator === "exhaust") {
-            await controlExhaust(deviceId, command);
+            await controlFan(1, command);
+        } else {
+            await controlExhaust(1, command);
         }
-
-        const action = command === "ON"
-            ? "ligar"
-            : "desligar";
-
-        const name = actuator === "fan"
-            ? "ventilador"
-            : "exaustor";
-
-        showText(statusId, "Comando enviado");
-
-        showText(
-            "message",
-            `Comando para ${action} o ${name} recebido pela API.`
-        );
-
+        showText("message", "Comando executado diretamente pelo ESP32.");
+        await refreshStates();
     } catch (error) {
-        console.error("Erro ao enviar comando:", error);
-
-        showText(statusId, "Falha no envio");
-
-        showText(
-            "message",
-            `Não foi possível enviar o comando: ${error.message}`
-        );
-
+        showText("message", "Falha no comando: " + error.message);
     } finally {
-        setButtonsDisabled(false);
+        buttons.forEach(item => item.disabled = false);
+        button.textContent = oldText;
     }
 }
 
-function setupControlButtons() {
-    const buttons = document.querySelectorAll(
-        "button[data-actuator][data-command]"
-    );
-
-    buttons.forEach((button) => {
-        button.addEventListener("click", () => {
-            const actuator = button.dataset.actuator;
-            const command = button.dataset.command;
-
-            sendCommand(actuator, command, button);
-        });
-    });
-}
-
 document.addEventListener("DOMContentLoaded", () => {
-    setupControlButtons();
+    document.querySelectorAll("button[data-actuator][data-command]").forEach(button => {
+        button.addEventListener("click", () =>
+            sendCommand(button.dataset.actuator, button.dataset.command, button)
+        );
+    });
+    refreshStates();
+    setInterval(refreshStates, 5000);
 });
