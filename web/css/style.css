@@ -861,3 +861,29 @@ body {
         padding: 16px;
     }
 }
+
+/* ===== PÁGINA DISPOSITIVOS ===== */
+
+#devices-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.device-item {
+    background: #f7faf8;
+    border: 1px solid #dce9df;
+    border-radius: 14px;
+    padding: 24px;
+}
+
+.device-item h3 {
+    color: #24583e;
+    margin-bottom: 12px;
+}
+
+.device-item p {
+    margin: 10px 0;
+    line-height: 1.5;
+}

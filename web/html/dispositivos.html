@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>EcoSense | Dispositivos</title>
+
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+    <div class="app-container">
+
+        <aside class="sidebar">
+            <div class="logo-area">
+                <div class="logo-icon">🌿</div>
+                <div>
+                    <h1>EcoSense</h1>
+                    <span>Monitoramento Ambiental</span>
+                </div>
+            </div>
+
+            <nav class="menu">
+                <a href="/dashboard" class="menu-item">
+                    <span>🏠</span> Dashboard
+                </a>
+
+                <a href="/historico" class="menu-item">
+                    <span>📊</span> Histórico
+                </a>
+
+                <a href="/alertas" class="menu-item">
+                    <span>🔔</span> Alertas
+                </a>
+
+                <a href="/dispositivos" class="menu-item active">
+                    <span>⚙️</span> Dispositivos
+                </a>
+
+                <a href="/controle" class="menu-item">
+                    <span>🌀</span> Controle
+                </a>
+
+                <a href="/configuracoes" class="menu-item">
+                    <span>🔧</span> Configurações
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <p>Tecnologia para um ambiente mais inteligente.</p>
+            </div>
+        </aside>
+
+        <main class="main-content">
+
+            <header class="topbar">
+                <div>
+                    <h2>Dispositivos conectados ⚙️</h2>
+                    <p>Acompanhe os dispositivos cadastrados no EcoSense.</p>
+                </div>
+            </header>
+
+            <section class="content-grid">
+                <article class="panel">
+
+                    <div class="panel-header">
+                        <h3>Dispositivos cadastrados</h3>
+                    </div>
+
+                    <div id="devices-list">
+                        <p class="empty-message">
+                            Carregando dispositivos...
+                        </p>
+                    </div>
+
+                </article>
+            </section>
+
+        </main>
+    </div>
+
+    <script type="module" src="/js/dispositivos.js"></script>
+</body>
+</html>
