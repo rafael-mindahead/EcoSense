@@ -352,6 +352,12 @@ docker compose logs -f mqtt_consumer
 - finalizar páginas Web de histórico, alertas, dispositivos e configurações;
 - iniciar aplicação iOS consumindo os mesmos contratos da API.
 
+## Reforma para ESP32 servidor
+
+A branch `reformar/requisito` transforma o ESP32 no servidor autônomo exigido pelo TDE. Nessa arquitetura, Web, API local, performance, histórico, logs, configuração, OTA e controle dos atuadores funcionam no próprio dispositivo. MQTT/PHP/PostgreSQL passam a ser uma integração externa opcional, e não uma dependência para o funcionamento local.
+
+A matriz detalhada de aderência está em `Docs/ESP_SERVER_REQUIREMENTS.md`.
+
 ## Segurança
 
 Credenciais locais ficam fora do versionamento.

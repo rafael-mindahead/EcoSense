@@ -8,7 +8,7 @@ echo " EcoSense Automated Tests"
 echo "=============================="
 echo
 
-bash tests/api/health.sh
+bash tests/esp32/requirements.sh\n\nbash tests/api/health.sh
 bash tests/api/meansurements.sh
 bash tests/api/devices.sh
 bash tests/api/sensor_limits.sh

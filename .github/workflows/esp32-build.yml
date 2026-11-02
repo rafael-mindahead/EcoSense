@@ -1,0 +1,34 @@
+name: ESP32 Firmware CI
+
+on:
+  push:
+    branches:
+      - reformar/requisito
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install PlatformIO
+        run: pip install platformio
+
+      - name: Prepare local firmware config
+        run: cp esp32/include/secrets.example.h esp32/include/secrets.h
+
+      - name: Check TDE firmware requirements
+        run: bash tests/esp32/requirements.sh
+
+      - name: Build ESP32 firmware
+        run: pio run -d esp32
