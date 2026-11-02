@@ -48,8 +48,13 @@ echo "→ Validando FreeRTOS e interrupção..."
 
 grep -q "xTaskCreatePinnedToCore" esp32/src/main.cpp
 grep -q "attachInterrupt" esp32/src/main.cpp
+grep -q '"sensor_read"' esp32/src/main.cpp
+grep -q '"history_write"' esp32/src/main.cpp
+grep -q '"wifi_tick"' esp32/src/main.cpp
+grep -q '"time_tick"' esp32/src/main.cpp
+grep -q '"web_handle"' esp32/src/WebServerService.cpp
 
-echo "✅ Multitarefa e interrupção configuradas"
+echo "✅ Multitarefa, interrupção e cinco medições contínuas configuradas"
 
 echo "→ Validando recursos obrigatórios..."
 

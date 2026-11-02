@@ -177,8 +177,30 @@ void networkTask(void*)
         const uint32_t started =
             micros();
 
+        const uint32_t wifiStarted =
+            micros();
+
         wifiService.tick();
+
+        performanceService
+            .recordTiming(
+                "wifi_tick",
+                micros() -
+                    wifiStarted
+            );
+
+        const uint32_t timeStarted =
+            micros();
+
         timeService.tick();
+
+        performanceService
+            .recordTiming(
+                "time_tick",
+                micros() -
+                    timeStarted
+            );
+
         mqttService.tick();
 
         const SensorSample sample =
