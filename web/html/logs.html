@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EcoSense | Logs</title><link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div class="app-container">
+    <aside class="sidebar"><div class="logo-area"><div class="logo-icon">🌿</div><div><h1>EcoSense</h1><span>Monitoramento Ambiental</span></div></div><nav class="menu"></nav><div class="sidebar-footer"><p>Observabilidade local em flash.</p></div></aside>
+    <main class="main-content">
+        <header class="page-toolbar"><div><h2>Logs 🧾</h2><p>INFO, WARNING e ERROR persistidos na flash do ESP32.</p></div><div class="toolbar-actions"><button id="logs-refresh" class="btn btn-primary">Atualizar</button><a class="btn btn-secondary" href="/api/logs/export">Exportar logs</a></div></header>
+        <section class="panel"><div class="panel-header"><div><h3>Eventos recentes</h3><p>O firmware mantém até 1000 registros.</p></div></div><pre id="logs-content" class="mono-block">Carregando...</pre></section>
+    </main>
+</div>
+<script type="module" src="/js/logs.js"></script>
+</body>
+</html>

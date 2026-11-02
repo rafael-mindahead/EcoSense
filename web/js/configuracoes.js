@@ -1,134 +1,73 @@
-import { getSensorLimits, saveSensorLimit } from "./api.js";
+import "./navigation.js";
+import {
+    getConfig,
+    saveSensorInterval,
+    saveWifi,
+    saveMqttHost,
+    requestLightSleep
+} from "./api.js";
 
-// =====================================
-// ELEMENTOS DA PÁGINA
-// =====================================
+const message = document.getElementById("message");
 
-const form = document.querySelector("#limit-form");
-const list = document.querySelector("#limits");
-const msg = document.querySelector("#message");
-
-// =====================================
-// PROTEÇÃO DOS DADOS EXIBIDOS
-// =====================================
-
-// Evita que caracteres especiais sejam interpretados como HTML
-const esc = (value) => {
-    return String(value ?? "—").replace(
-        /[&<>"']/g,
-        (character) => ({
-            "&": "&amp;",
-            "<": "&lt;",
-            ">": "&gt;",
-            '"': "&quot;",
-            "'": "&#39;"
-        }[character])
-    );
-};
-
-// =====================================
-// CARREGAR LIMITES DA API
-// =====================================
+function feedback(text, error = false) {
+    message.textContent = text;
+    message.classList.toggle("error-message", error);
+}
 
 async function load() {
     try {
-        // Consulta os limites cadastrados
-        const response = await getSensorLimits();
-
-        const rows = response.data || [];
-
-        // Exibe a tabela quando existem registros
-        if (rows.length) {
-            list.innerHTML = `
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Dispositivo</th>
-                            <th>Métrica</th>
-                            <th>Mínimo</th>
-                            <th>Máximo</th>
-                            <th>Ativo</th>
-                        </tr>
-                    </thead>
-
-                    <tbody>
-                        ${rows.map((item) => `
-                            <tr>
-                                <td>${esc(item.device_id)}</td>
-                                <td>${esc(item.metric)}</td>
-                                <td>${esc(item.min_value)}</td>
-                                <td>${esc(item.max_value)}</td>
-                                <td>${item.enabled ? "Sim" : "Não"}</td>
-                            </tr>
-                        `).join("")}
-                    </tbody>
-                </table>
-            `;
-        } else {
-            list.textContent = "Nenhum limite cadastrado.";
-        }
-
+        const config = await getConfig();
+        document.getElementById("sample-ms").value = config.sensor_interval_ms;
+        document.getElementById("sample-ms").min = config.min_sensor_interval_ms;
+        document.getElementById("sample-ms").max = config.max_sensor_interval_ms;
+        document.getElementById("ssid").value = config.wifi_ssid || "";
+        document.getElementById("mqtt-host").value = config.mqtt_host || "";
     } catch (error) {
-        console.error("Erro ao consultar limites:", error);
-
-        list.textContent =
-            "Não foi possível consultar os limites da API.";
+        feedback("Não foi possível carregar a configuração: " + error.message, true);
     }
 }
 
-// =====================================
-// SALVAR LIMITE AMBIENTAL
-// =====================================
-
-form.addEventListener("submit", async (event) => {
-    // Evita que a página recarregue
+document.getElementById("sample-form")?.addEventListener("submit", async event => {
     event.preventDefault();
-
-    // Obtém os dados preenchidos no formulário
-    const data = new FormData(form);
-
-    const min = data.get("min_value");
-    const max = data.get("max_value");
-
-    // Valida o intervalo informado
-    if (
-        min !== "" &&
-        max !== "" &&
-        Number(min) > Number(max)
-    ) {
-        msg.textContent =
-            "O mínimo não pode ser maior que o máximo.";
-
-        return;
-    }
-
     try {
-        // Envia os dados para a API
-        await saveSensorLimit({
-            device_id: Number(data.get("device_id")),
-            metric: data.get("metric"),
-            min_value: min === "" ? null : Number(min),
-            max_value: max === "" ? null : Number(max),
-            enabled: form.elements.enabled.checked
-        });
-
-        // Mensagem de sucesso
-        msg.textContent = "Limite salvo.";
-
-        // Atualiza a tabela com os dados cadastrados
-        await load();
-
+        await saveSensorInterval(Number(document.getElementById("sample-ms").value));
+        feedback("Intervalo de leitura salvo.");
     } catch (error) {
-        console.error("Erro ao salvar limite:", error);
-
-        msg.textContent =
-            "Não foi possível salvar. Confirme a disponibilidade da API e os dados.";
+        feedback(error.message, true);
     }
 });
 
-// =====================================
-// INICIALIZAÇÃO
-// =====================================
+document.getElementById("wifi-form")?.addEventListener("submit", async event => {
+    event.preventDefault();
+    try {
+        await saveWifi(
+            document.getElementById("ssid").value.trim(),
+            document.getElementById("wifi-password").value
+        );
+        feedback("Wi-Fi salvo. O ESP32 tentará a nova rede; o navegador pode perder a conexão.");
+    } catch (error) {
+        feedback(error.message, true);
+    }
+});
 
-// Carrega os limites quando a página é aberta
-load();
+document.getElementById("mqtt-form")?.addEventListener("submit", async event => {
+    event.preventDefault();
+    try {
+        await saveMqttHost(document.getElementById("mqtt-host").value.trim());
+        feedback("Broker MQTT opcional atualizado.");
+    } catch (error) {
+        feedback(error.message, true);
+    }
+});
+
+document.getElementById("sleep-form")?.addEventListener("submit", async event => {
+    event.preventDefault();
+    try {
+        await requestLightSleep(Number(document.getElementById("sleep-seconds").value));
+        feedback("Light Sleep agendado. A conexão será retomada após o despertar.");
+    } catch (error) {
+        feedback(error.message, true);
+    }
+});
+
+document.addEventListener("DOMContentLoaded", load);
