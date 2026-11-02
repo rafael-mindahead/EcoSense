@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>EcoSense | Configurações</title>
+
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+    <div class="app-container">
+
+        <!-- MENU LATERAL -->
+        <aside class="sidebar">
+
+            <div class="logo-area">
+                <div class="logo-icon">🌿</div>
+
+                <div>
+                    <h1>EcoSense</h1>
+                    <span>Monitoramento Ambiental</span>
+                </div>
+            </div>
+
+            <nav class="menu">
+
+                <a href="/dashboard" class="menu-item">
+                    <span>🏠</span>
+                    Dashboard
+                </a>
+
+                <a href="/historico" class="menu-item">
+                    <span>📊</span>
+                    Histórico
+                </a>
+
+                <a href="/alertas" class="menu-item">
+                    <span>🔔</span>
+                    Alertas
+                </a>
+
+                <a href="/dispositivos" class="menu-item">
+                    <span>⚙️</span>
+                    Dispositivos
+                </a>
+
+                <a href="/controle" class="menu-item">
+                    <span>🌀</span>
+                    Controle
+                </a>
+
+                <a href="/configuracoes" class="menu-item active">
+                    <span>🔧</span>
+                    Configurações
+                </a>
+
+            </nav>
+
+            <div class="sidebar-footer">
+                <p>
+                    Tecnologia para um ambiente mais inteligente.
+                </p>
+            </div>
+
+        </aside>
+
+        <!-- CONTEÚDO PRINCIPAL -->
+        <main class="main-content">
+
+            <!-- CABEÇALHO -->
+            <header class="topbar">
+
+                <div>
+                    <h2>Limites ambientais 🔧</h2>
+
+                    <p>
+                        Consulte e atualize os limites
+                        por dispositivo.
+                    </p>
+                </div>
+
+            </header>
+
+            <!-- MENSAGENS DO SISTEMA -->
+            <p id="message" role="status" aria-live="polite"></p>
+
+            <!-- CONFIGURAÇÃO DOS LIMITES -->
+            <section class="content-card">
+
+                <h3>Configurar limites dos sensores</h3>
+
+                <form id="limit-form">
+
+                    <!-- DISPOSITIVO -->
+                    <label for="device-id">
+                        Dispositivo
+                    </label>
+
+                    <input
+                        type="number"
+                        id="device-id"
+                        name="device_id"
+                        min="1"
+                        value="1"
+                        required
+                    >
+
+                    <!-- MÉTRICA -->
+                    <label for="metric">
+                        Métrica
+                    </label>
+
+                    <select id="metric" name="metric">
+
+                        <option value="temperature">
+                            Temperatura
+                        </option>
+
+                        <option value="humidity">
+                            Umidade
+                        </option>
+
+                        <option value="luminosity">
+                            Luminosidade
+                        </option>
+
+                        <option value="air_quality">
+                            Qualidade do ar
+                        </option>
+
+                    </select>
+
+                    <!-- VALOR MÍNIMO -->
+                    <label for="min-value">
+                        Mínimo
+                    </label>
+
+                    <input
+                        type="number"
+                        id="min-value"
+                        name="min_value"
+                        step="any"
+                    >
+
+                    <!-- VALOR MÁXIMO -->
+                    <label for="max-value">
+                        Máximo
+                    </label>
+
+                    <input
+                        type="number"
+                        id="max-value"
+                        name="max_value"
+                        step="any"
+                    >
+
+                    <!-- ATIVAR LIMITE -->
+                    <label for="enabled">
+                        <input
+                            type="checkbox"
+                            id="enabled"
+                            name="enabled"
+                            checked
+                        >
+                        Ativo
+                    </label>
+
+                    <!-- SALVAR -->
+                    <button
+                        type="submit"
+                        class="btn btn-primary"
+                    >
+                        Salvar limite
+                    </button>
+
+                </form>
+
+                <!-- LIMITES CADASTRADOS -->
+                <h3>Limites cadastrados</h3>
+
+                <div id="limits">
+                    Carregando...
+                </div>
+
+            </section>
+
+        </main>
+
+    </div>
+
+    <!-- JAVASCRIPT DA PÁGINA -->
+    <script
+        type="module"
+        src="/js/configuracoes.js"
+    ></script>
+
+</body>
+</html>

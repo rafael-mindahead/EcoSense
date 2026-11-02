@@ -3,16 +3,14 @@
 
 <head>
     <meta charset="UTF-8">
-
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>EcoSense | Dashboard</title>
 
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="/css/style.css">
 </head>
 
 <body>
-
     <div class="app-container">
 
         <!-- MENU LATERAL -->
@@ -29,33 +27,33 @@
 
             <nav class="menu">
 
-                <a href="dashboard.html" class="menu-item active">
+                <a href="/dashboard" class="menu-item active">
                     <span>🏠</span>
                     Dashboard
                 </a>
 
-                <a href="historico.html" class="menu-item">
+                <a href="/historico" class="menu-item">
                     <span>📊</span>
                     Histórico
                 </a>
 
-                <a href="alertas.html" class="menu-item">
+                <a href="/alertas" class="menu-item">
                     <span>🔔</span>
                     Alertas
                     <span class="alert-badge" id="alert-count">0</span>
                 </a>
 
-                <a href="dispositivos.html" class="menu-item">
+                <a href="/dispositivos" class="menu-item">
                     <span>⚙️</span>
                     Dispositivos
                 </a>
 
-                <a href="#" class="menu-item">
+                <a href="/controle" class="menu-item">
                     <span>🌀</span>
                     Controle
                 </a>
 
-                <a href="configuracoes.html" class="menu-item">
+                <a href="/configuracoes" class="menu-item">
                     <span>🔧</span>
                     Configurações
                 </a>
@@ -63,20 +61,22 @@
             </nav>
 
             <div class="sidebar-footer">
-                <p>Tecnologia para um ambiente mais inteligente.</p>
+                <p>
+                    Tecnologia para um ambiente mais inteligente.
+                </p>
             </div>
 
         </aside>
 
-
         <!-- CONTEÚDO PRINCIPAL -->
         <main class="main-content">
 
-            <!-- TOPO -->
+            <!-- CABEÇALHO -->
             <header class="topbar">
 
                 <div>
-                    <h2>Olá, bem-vinda ao EcoSense! 🌱</h2>
+                    <h2>Olá, bem-vindo ao EcoSense! 🌱</h2>
+
                     <p>
                         Acompanhe em tempo real as condições do ambiente.
                     </p>
@@ -93,22 +93,18 @@
 
             </header>
 
-
             <!-- CARDS DOS SENSORES -->
             <section class="sensor-grid">
 
+                <!-- TEMPERATURA -->
                 <article class="sensor-card temperature-card">
 
                     <div class="sensor-header">
                         <span class="sensor-icon">🌡️</span>
-
                         <h3>Temperatura</h3>
                     </div>
 
-                    <div
-                        class="sensor-value"
-                        id="temperature"
-                    >
+                    <div class="sensor-value" id="temperature">
                         -- °C
                     </div>
 
@@ -118,19 +114,15 @@
 
                 </article>
 
-
+                <!-- UMIDADE -->
                 <article class="sensor-card humidity-card">
 
                     <div class="sensor-header">
                         <span class="sensor-icon">💧</span>
-
                         <h3>Umidade</h3>
                     </div>
 
-                    <div
-                        class="sensor-value"
-                        id="humidity"
-                    >
+                    <div class="sensor-value" id="humidity">
                         -- %
                     </div>
 
@@ -140,19 +132,15 @@
 
                 </article>
 
-
+                <!-- LUMINOSIDADE -->
                 <article class="sensor-card luminosity-card">
 
                     <div class="sensor-header">
                         <span class="sensor-icon">☀️</span>
-
                         <h3>Luminosidade</h3>
                     </div>
 
-                    <div
-                        class="sensor-value"
-                        id="luminosity"
-                    >
+                    <div class="sensor-value" id="luminosity">
                         -- lx
                     </div>
 
@@ -162,19 +150,15 @@
 
                 </article>
 
-
+                <!-- QUALIDADE DO AR -->
                 <article class="sensor-card air-card">
 
                     <div class="sensor-header">
                         <span class="sensor-icon">🍃</span>
-
                         <h3>Qualidade do ar</h3>
                     </div>
 
-                    <div
-                        class="sensor-value"
-                        id="air-quality"
-                    >
+                    <div class="sensor-value" id="air-quality">
                         --
                     </div>
 
@@ -186,8 +170,7 @@
 
             </section>
 
-
-            <!-- INFORMAÇÕES GERAIS -->
+            <!-- INFORMAÇÕES DO SISTEMA -->
             <section class="info-grid">
 
                 <!-- ÚLTIMA MEDIÇÃO -->
@@ -205,14 +188,12 @@
 
                 </article>
 
-
                 <!-- DISPOSITIVO -->
                 <article class="info-card device-card">
 
                     <div class="device-icon">🧩</div>
 
                     <div>
-
                         <h3 id="device-name">
                             Dispositivo
                         </h3>
@@ -230,11 +211,9 @@
                         <small id="device-code">
                             Código: --
                         </small>
-
                     </div>
 
                 </article>
-
 
                 <!-- ALERTAS -->
                 <article class="info-card alert-card">
@@ -245,9 +224,7 @@
                         <h3>Alertas ativos</h3>
 
                         <p>
-                            <strong id="active-alerts">
-                                0
-                            </strong>
+                            <strong id="active-alerts">0</strong>
                             alerta(s)
                         </p>
                     </div>
@@ -256,25 +233,27 @@
 
             </section>
 
-
-            <!-- GRÁFICO / HISTÓRICO -->
+            <!-- GRÁFICO E STATUS DO DISPOSITIVO -->
             <section class="content-grid">
 
+                <!-- GRÁFICO CHART.JS -->
                 <article class="panel chart-panel">
 
                     <div class="panel-header">
 
                         <div>
-                            <h3>
-                                Variação dos sensores
-                            </h3>
+                            <h3>Variação dos sensores</h3>
 
                             <p>
                                 Histórico recente das medições
                             </p>
                         </div>
 
-                        <select id="chart-filter">
+                        <select
+                            id="chart-filter"
+                            aria-label="Sensor exibido no gráfico"
+                        >
+
                             <option value="temperature">
                                 Temperatura
                             </option>
@@ -290,20 +269,21 @@
                             <option value="air_quality">
                                 Qualidade do ar
                             </option>
+
                         </select>
 
                     </div>
 
-                    <div class="chart-placeholder">
-                        <p>
-                            📈 O gráfico será conectado ao Chart.js
-                        </p>
+                    <div
+                        class="chart-container"
+                        style="position: relative; height: 280px; width: 100%;"
+                    >
+                        <canvas id="sensor-chart"></canvas>
                     </div>
 
                 </article>
 
-
-                <!-- STATUS DO DISPOSITIVO -->
+                <!-- STATUS DO ESP32 -->
                 <article class="panel">
 
                     <div class="panel-header">
@@ -317,7 +297,6 @@
                         </div>
 
                         <div>
-
                             <h4 id="device-panel-name">
                                 ESP32
                             </h4>
@@ -329,7 +308,6 @@
                             <p id="device-last-seen">
                                 Última comunicação: --
                             </p>
-
                         </div>
 
                     </div>
@@ -338,11 +316,11 @@
 
             </section>
 
-
-            <!-- CONTROLE DO AMBIENTE -->
+            <!-- CONTROLE DO AMBIENTE E ALERTAS -->
             <section class="content-grid">
 
-                <article class="panel">
+                <!-- CONTROLES -->
+                <article class="panel" id="controle-ambiente">
 
                     <div class="panel-header">
                         <h3>Controle do ambiente</h3>
@@ -354,18 +332,13 @@
                         <div class="control-card">
 
                             <div>
-                                <span class="control-icon">
-                                    🌀
-                                </span>
-
+                                <span class="control-icon">🌀</span>
                                 <h4>Ventilador</h4>
                             </div>
 
                             <p>
                                 Estado:
-                                <span id="fan-status">
-                                    --
-                                </span>
+                                <span id="fan-status">--</span>
                             </p>
 
                             <div class="control-buttons">
@@ -390,23 +363,17 @@
 
                         </div>
 
-
                         <!-- EXAUSTOR -->
                         <div class="control-card">
 
                             <div>
-                                <span class="control-icon">
-                                    💨
-                                </span>
-
+                                <span class="control-icon">💨</span>
                                 <h4>Exaustor</h4>
                             </div>
 
                             <p>
                                 Estado:
-                                <span id="exhaust-status">
-                                    --
-                                </span>
+                                <span id="exhaust-status">--</span>
                             </p>
 
                             <div class="control-buttons">
@@ -435,7 +402,6 @@
 
                 </article>
 
-
                 <!-- ALERTAS RECENTES -->
                 <article class="panel">
 
@@ -445,7 +411,7 @@
                             <h3>Alertas recentes</h3>
                         </div>
 
-                        <a href="alertas.html">
+                        <a href="/alertas">
                             Ver todos
                         </a>
 
@@ -455,11 +421,9 @@
                         class="alerts-list"
                         id="alerts-list"
                     >
-
                         <p class="empty-message">
                             Nenhum alerta carregado.
                         </p>
-
                     </div>
 
                 </article>
@@ -470,12 +434,11 @@
 
     </div>
 
+    <!-- BIBLIOTECA CHART.JS -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
 
-    <script
-        type="module"
-        src="js/dashboard.js"
-    ></script>
+    <!-- JAVASCRIPT DO DASHBOARD -->
+    <script type="module" src="/js/dashboard.js"></script>
 
 </body>
-
 </html>

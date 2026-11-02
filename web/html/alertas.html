@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>EcoSense | Alertas</title>
+
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+    <div class="app-container">
+
+        <!-- MENU LATERAL -->
+        <aside class="sidebar">
+
+            <div class="logo-area">
+                <div class="logo-icon">🌿</div>
+
+                <div>
+                    <h1>EcoSense</h1>
+                    <span>Monitoramento Ambiental</span>
+                </div>
+            </div>
+
+            <nav class="menu">
+
+                <a href="/dashboard" class="menu-item">
+                    <span>🏠</span>
+                    Dashboard
+                </a>
+
+                <a href="/historico" class="menu-item">
+                    <span>📊</span>
+                    Histórico
+                </a>
+
+                <a href="/alertas" class="menu-item active">
+                    <span>🔔</span>
+                    Alertas
+                    <span class="alert-badge" id="alert-count">0</span>
+                </a>
+
+                <a href="/dispositivos" class="menu-item">
+                    <span>⚙️</span>
+                    Dispositivos
+                </a>
+
+                <a href="/controle" class="menu-item">
+                    <span>🌀</span>
+                    Controle
+                </a>
+                <a href="/configuracoes" class="menu-item">
+                    <span>🔧</span>
+                     Configurações
+                </a>
+
+            </nav>
+
+            <div class="sidebar-footer">
+                <p>
+                    Tecnologia para um ambiente mais inteligente.
+                </p>
+            </div>
+
+        </aside>
+
+        <!-- CONTEÚDO PRINCIPAL -->
+        <main class="main-content">
+
+            <!-- CABEÇALHO E FILTROS -->
+            <header class="page-toolbar">
+
+                <div>
+                    <h2>Alertas 🔔</h2>
+
+                    <p>
+                        Consulte os alertas ambientais e resolva
+                        os que já foram tratados.
+                    </p>
+                </div>
+
+                <div class="toolbar-actions">
+
+                    <!-- FILTRO DE ALERTAS -->
+                    <div class="field">
+
+                        <label for="alert-filter">
+                            Exibir
+                        </label>
+
+                        <select id="alert-filter">
+
+                            <option value="open">
+                                Abertos
+                            </option>
+
+                            <option value="all">
+                                Todos
+                            </option>
+
+                            <option value="resolved">
+                                Resolvidos
+                            </option>
+
+                        </select>
+
+                    </div>
+
+                    <!-- BOTÃO ATUALIZAR -->
+                    <button
+                        type="button"
+                        id="alerts-refresh"
+                        class="btn btn-primary"
+                    >
+                        Atualizar
+                    </button>
+
+                </div>
+
+            </header>
+
+            <!-- CARDS DE RESUMO -->
+            <section class="info-grid">
+
+                <!-- ALERTAS ABERTOS -->
+                <article class="info-card">
+
+                    <div class="alert-icon">🔔</div>
+
+                    <div>
+                        <h3>Alertas abertos</h3>
+
+                        <p id="open-alerts-count">
+                            --
+                        </p>
+                    </div>
+
+                </article>
+
+                <!-- ALERTAS RESOLVIDOS -->
+                <article class="info-card">
+
+                    <div class="info-icon">✓</div>
+
+                    <div>
+                        <h3>Resolvidos</h3>
+
+                        <p id="resolved-alerts-count">
+                            --
+                        </p>
+                    </div>
+
+                </article>
+
+                <!-- TOTAL DE ALERTAS -->
+                <article class="info-card">
+
+                    <div class="device-icon">📋</div>
+
+                    <div>
+                        <h3>Total</h3>
+
+                        <p id="total-alerts-count">
+                            --
+                        </p>
+                    </div>
+
+                </article>
+
+            </section>
+
+            <!-- LISTA DE ALERTAS -->
+            <section class="panel">
+
+                <div class="panel-header">
+
+                    <div>
+                        <h3>Lista de alertas</h3>
+
+                        <p id="alerts-summary">
+                            Carregando...
+                        </p>
+                    </div>
+
+                </div>
+
+                <!-- MENSAGENS DO SISTEMA -->
+                <div
+                    id="alerts-message"
+                    class="page-message"
+                    role="status"
+                    aria-live="polite"
+                >
+                    Carregando alertas...
+                </div>
+
+                <!-- ALERTAS CARREGADOS PELA API -->
+                <div
+                    id="alerts-list-page"
+                    class="alert-page-list"
+                ></div>
+
+            </section>
+
+        </main>
+
+    </div>
+
+    <!-- JAVASCRIPT DA PÁGINA ALERTAS -->
+    <script
+        type="module"
+        src="/js/alertas.js"
+    ></script>
+
+</body>
+</html>
