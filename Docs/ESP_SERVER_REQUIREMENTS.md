@@ -1,13 +1,13 @@
 # Matriz de aderência — TDE Performance de Sistemas Ciberfísicos
 
-Esta matriz acompanha a reforma em que o ESP32 passa a ser o servidor principal do EcoSense.
+Esta matriz descreve a arquitetura final do TDE, em que o ESP32 é o servidor principal do EcoSense e PHP/MQTT/PostgreSQL são integrações externas opcionais.
 
 ## Implementado nesta branch
 
 | Requisito | Implementação |
 |---|---|
-| Interface Web embarcada | `WebServerService` serve a interface diretamente do ESP32 |
-| Página de Performance | CPU estimada, heap, stack, flash, PSRAM, timings, tasks e Wi-Fi |
+| Interface Web embarcada | front oficial em `web/`, incorporado no build e servido por `WebServerService` diretamente do ESP32 |
+| Página de Performance | `web/html/performance.html`: CPU, heap, stack, flash, PSRAM, timings, tasks, Wi-Fi/AP/RSSI, sensores, histórico e OTA |
 | 5+ funções medidas | sensor, histórico, MQTT loop/publish, atuador e Web |
 | Sensores + histórico 24h | `SensorService` + `HistoryService` em LittleFS |
 | Estado Wi-Fi/AP + RSSI | `WifiService` + endpoint de performance |
