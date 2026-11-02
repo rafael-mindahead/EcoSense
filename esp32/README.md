@@ -65,7 +65,7 @@ Se `ECOSENSE_AP_PASSWORD` não estiver definido em um arquivo local antigo, o fi
 
 ## Compilar e gravar
 
-O build incorpora automaticamente os arquivos de `../web/` ao firmware.
+O build incorpora automaticamente os arquivos de `../web/` ao firmware. A tabela `partitions_ota.csv` reserva duas partições de aplicação para preservar OTA e uma partição LittleFS de aproximadamente 1,1 MB para histórico/logs.
 
 ```bash
 pio run -d esp32

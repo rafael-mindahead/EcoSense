@@ -16,6 +16,7 @@ required_files=(
   "esp32/include/SensorService.h"
   "esp32/include/ActuatorHardwareService.h"
   "esp32/scripts/embed_web.py"
+  "esp32/partitions_ota.csv"
   "web/html/dashboard.html"
   "web/html/historico.html"
   "web/html/performance.html"
@@ -65,6 +66,9 @@ grep -q "/api/energy/light-sleep" esp32/src/WebServerService.cpp
 grep -q "/api/ota" esp32/src/WebServerService.cpp
 grep -q "GeneratedWebAssets.h" esp32/src/WebServerService.cpp
 grep -q "extra_scripts = pre:scripts/embed_web.py" esp32/platformio.ini
+grep -q "board_build.partitions = partitions_ota.csv" esp32/platformio.ini
+grep -q "ota_0" esp32/partitions_ota.csv
+grep -q "ota_1" esp32/partitions_ota.csv
 
 echo "✅ Performance, logs, Wi-Fi, energia, OTA e front embarcado configurados"
 
