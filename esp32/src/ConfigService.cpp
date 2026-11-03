@@ -29,6 +29,10 @@ String ConfigService::wifiPassword() const
 
 String ConfigService::mqttHost() const
 {
+    if (!preferences.isKey("mqtt_host")) {
+        return String(MQTT_HOST);
+    }
+
     return preferences.getString(
         "mqtt_host",
         MQTT_HOST
