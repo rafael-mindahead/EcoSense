@@ -19,6 +19,7 @@ void WifiService::begin()
     WiFi.mode(WIFI_AP_STA);
 
     startedAt = millis();
+    stationAnnounced = false;
 
     startStation();
 }
@@ -53,6 +54,11 @@ void WifiService::startAccessPoint()
             EcoSenseConfig::SETUP_AP_SSID,
             ECOSENSE_AP_PASSWORD
         );
+
+    if (accessPointActive) {
+        Serial.print("EcoSense AP ativo em: http://");
+        Serial.println(WiFi.softAPIP());
+    }
 }
 
 void WifiService::tick()
@@ -84,8 +90,16 @@ void WifiService::tick()
         WiFi.status() ==
         WL_CONNECTED
     ) {
+        if (!stationAnnounced) {
+            stationAnnounced = true;
+            Serial.print("EcoSense conectado em: http://");
+            Serial.println(WiFi.localIP());
+        }
+
         return;
     }
+
+    stationAnnounced = false;
 
     if (
         !accessPointActive &&
