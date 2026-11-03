@@ -34,6 +34,7 @@ private:
     uint32_t startedAt = 0;
     uint32_t lastReconnectAttempt = 0;
     bool accessPointActive = false;
+    bool stationAnnounced = false;
 
     bool reconfigurePending = false;
     uint32_t reconfigureAtMs = 0;
