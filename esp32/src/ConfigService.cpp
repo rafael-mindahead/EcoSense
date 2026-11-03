@@ -13,6 +13,10 @@ void ConfigService::begin()
 
 String ConfigService::wifiSsid() const
 {
+    if (!preferences.isKey("wifi_ssid")) {
+        return String(WIFI_SSID);
+    }
+
     return preferences.getString(
         "wifi_ssid",
         WIFI_SSID
@@ -21,6 +25,10 @@ String ConfigService::wifiSsid() const
 
 String ConfigService::wifiPassword() const
 {
+    if (!preferences.isKey("wifi_pass")) {
+        return String(WIFI_PASSWORD);
+    }
+
     return preferences.getString(
         "wifi_pass",
         WIFI_PASSWORD
