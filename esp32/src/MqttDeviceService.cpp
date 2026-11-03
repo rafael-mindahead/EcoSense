@@ -57,6 +57,12 @@ void MqttDeviceService::tick()
         return;
     }
 
+    const String host = config.mqttHost();
+
+    if (host.isEmpty()) {
+        return;
+    }
+
     if (!client.connected()) {
         tryConnect();
         return;
