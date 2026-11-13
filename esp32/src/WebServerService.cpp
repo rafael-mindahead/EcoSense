@@ -577,6 +577,9 @@ String WebServerService::
     document["air_quality"] =
         sample.airQuality;
 
+    document["ens160_valid"] =
+        sample.ens160Valid;
+
     String json;
 
     serializeJson(
