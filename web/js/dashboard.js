@@ -55,7 +55,12 @@ async function loadLatestMeasurement() {
         ? Number(measurement.humidity).toFixed(1) + " %"
         : "N/A");
     showText("luminosity", Number(measurement.luminosity || 0).toFixed(0) + " ADC");
-    showText("air-quality", Number(measurement.air_quality || 0).toFixed(0));
+    showText(
+        "air-quality",
+        measurement.ens160_valid && Number(measurement.air_quality) >= 0
+            ? "AQI " + Number(measurement.air_quality).toFixed(0)
+            : "N/A"
+    );
     showText("last-update", formatDate(measurement.created_at));
 }
 
