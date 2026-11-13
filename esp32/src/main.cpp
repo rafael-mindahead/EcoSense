@@ -293,22 +293,37 @@ void maintenanceTask(void*)
 void setup()
 {
     Serial.begin(115200);
+    delay(200);
+    Serial.println("[BOOT] setup iniciado");
 
+    Serial.println("[BOOT] configService.begin");
     configService.begin();
 
+    Serial.println("[BOOT] wifiService.begin");
     wifiService.begin();
 
+    Serial.println("[BOOT] logService.begin");
     logService.begin();
+
+    Serial.println("[BOOT] historyService.begin");
     historyService.begin();
 
+    Serial.println("[BOOT] sensorService.begin");
     sensorService.begin();
+
+    Serial.println("[BOOT] actuatorService.begin");
     actuatorService.begin();
 
+    Serial.println("[BOOT] performanceService.begin");
     performanceService.begin();
 
+    Serial.println("[BOOT] mqttService.begin");
     mqttService.begin();
 
+    Serial.println("[BOOT] webService.begin");
     webService.begin();
+
+    Serial.println("[BOOT] servicos inicializados");
 
     pinMode(
         EcoSenseConfig::
