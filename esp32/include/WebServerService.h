@@ -69,4 +69,5 @@ private:
     String latestSensorJson() const;
     String statusJson() const;
     String configJson() const;
+    String i2cScanJson() const;
 };
