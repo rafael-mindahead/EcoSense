@@ -12,10 +12,11 @@ constexpr uint16_t MQTT_PORT = 1883;
 constexpr uint8_t DHT_PIN = 4;
 constexpr uint8_t DHT_TYPE = 22;
 constexpr uint8_t LDR_PIN = 34;
-constexpr uint8_t AIR_QUALITY_PIN = 35;
+constexpr uint8_t ENS160_SDA_PIN = 15;
+constexpr uint8_t ENS160_SCL_PIN = 22;
 
-constexpr uint8_t FAN_DRIVER_PIN = 26;
-constexpr uint8_t EXHAUST_DRIVER_PIN = 27;
+constexpr uint8_t FAN_DRIVER_PIN = 18;
+constexpr uint8_t EXHAUST_DRIVER_PIN = 19;
 constexpr bool ACTUATOR_DRIVER_ACTIVE_HIGH = true;
 
 constexpr uint8_t INTERRUPT_PIN = 0;
