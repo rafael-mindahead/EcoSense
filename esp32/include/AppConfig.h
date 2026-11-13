@@ -12,7 +12,7 @@ constexpr uint16_t MQTT_PORT = 1883;
 constexpr uint8_t DHT_PIN = 4;
 constexpr uint8_t DHT_TYPE = 22;
 constexpr uint8_t LDR_PIN = 34;
-constexpr uint8_t ENS160_SDA_PIN = 15;
+constexpr uint8_t ENS160_SDA_PIN = 21;
 constexpr uint8_t ENS160_SCL_PIN = 22;
 
 constexpr uint8_t FAN_DRIVER_PIN = 18;
