@@ -2,6 +2,7 @@
 
 #include <ArduinoJson.h>
 #include <LittleFS.h>
+#include <Wire.h>
 
 #include "AppConfig.h"
 #include "GeneratedWebAssets.h"
@@ -129,6 +130,17 @@ void WebServerService::registerRoutes()
                 200,
                 performance
                     .snapshotJson()
+            );
+        }
+    );
+
+    server.on(
+        "/api/debug/i2c",
+        HTTP_GET,
+        [this]() {
+            sendJson(
+                200,
+                i2cScanJson()
             );
         }
     );
@@ -665,6 +677,73 @@ String WebServerService::configJson() const
     document["max_sensor_interval_ms"] =
         EcoSenseConfig::
             MAX_SENSOR_INTERVAL_MS;
+
+    String json;
+
+    serializeJson(
+        document,
+        json
+    );
+
+    return json;
+}
+
+
+String WebServerService::i2cScanJson() const
+{
+    StaticJsonDocument<1024> document;
+
+    document["sda_pin"] =
+        EcoSenseConfig::ENS160_SDA_PIN;
+
+    document["scl_pin"] =
+        EcoSenseConfig::ENS160_SCL_PIN;
+
+    JsonArray devices =
+        document["devices"].to<JsonArray>();
+
+    bool ens160Candidate = false;
+
+    for (
+        uint8_t address = 1;
+        address < 127;
+        address++
+    ) {
+        Wire.beginTransmission(
+            address
+        );
+
+        const uint8_t error =
+            Wire.endTransmission();
+
+        if (error == 0) {
+            char hexAddress[7];
+
+            snprintf(
+                hexAddress,
+                sizeof(hexAddress),
+                "0x%02X",
+                address
+            );
+
+            devices.add(
+                hexAddress
+            );
+
+            if (
+                address == 0x52 ||
+                address == 0x53
+            ) {
+                ens160Candidate = true;
+            }
+        }
+    }
+
+    document["device_count"] =
+        devices.size();
+
+    document["ens160_candidate_found"] =
+        ens160Candidate;
 
     String json;
 
