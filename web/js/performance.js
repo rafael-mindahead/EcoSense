@@ -102,12 +102,6 @@ async function load() {
         text("perf-temperature", sample.dht_valid ? Number(sample.temperature).toFixed(1) + " °C" : "N/A");
         text("perf-humidity", sample.dht_valid ? Number(sample.humidity).toFixed(1) + " %" : "N/A");
         text("perf-luminosity", String(sample.luminosity) + " ADC");
-        text(
-            "perf-air",
-            sample.ens160_valid && Number(sample.air_quality) >= 0
-                ? "AQI " + String(sample.air_quality)
-                : "N/A"
-        );
 
         renderRows("timings-body", performance.function_timings || [], ["name", "last_us", "avg_us", "max_us"]);
         renderRows("tasks-body", performance.tasks || [], ["name", "stack_high_water_bytes"]);
