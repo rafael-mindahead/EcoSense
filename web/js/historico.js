@@ -85,10 +85,6 @@ function renderCharts(rows) {
         values: rows.map(item => Number(item.luminosity))
     }]);
 
-    drawSeries("air-chart", [{
-        label: "Qualidade do ar ADC",
-        values: rows.map(item => Number(item.air_quality))
-    }]);
 }
 
 function renderTable(rows) {
@@ -117,8 +113,7 @@ function renderTable(rows) {
             devices[0]?.name || "EcoSense ESP32",
             item.dht_valid ? num(item.temperature) + " °C" : "N/A",
             item.dht_valid ? num(item.humidity) + " %" : "N/A",
-            num(item.luminosity, 0) + " ADC",
-            num(item.air_quality, 0) + " ADC"
+            num(item.luminosity, 0) + " ADC"
         ];
 
         values.forEach(value => {
