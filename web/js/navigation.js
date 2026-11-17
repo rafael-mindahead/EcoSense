@@ -1,14 +1,14 @@
 const items = [
-    ["dashboard", "🏠", "Dashboard"],
-    ["historico", "📊", "Histórico"],
-    ["performance", "⚡", "Performance"],
-    ["logs", "🧾", "Logs"],
-    ["alertas", "🔔", "Alertas"],
-    ["dispositivos", "⚙️", "Dispositivos"],
-    ["controle", "🌀", "Controle"],
-    ["configuracoes", "🔧", "Configurações"],
-    ["sobre", "ℹ️", "Sobre"],
-    ["changelog", "📝", "Changelog"]
+    ["dashboard", "Dashboard"],
+    ["historico", "Histórico"],
+    ["performance", "Performance"],
+    ["logs", "Logs"],
+    ["alertas", "Alertas"],
+    ["dispositivos", "Dispositivos"],
+    ["controle", "Controle"],
+    ["configuracoes", "Configurações"],
+    ["sobre", "Sobre"],
+    ["changelog", "Changelog"]
 ];
 
 function renderNavigation() {
@@ -19,10 +19,10 @@ function renderNavigation() {
         ? "dashboard"
         : location.pathname.replace(/^\/+|\/+$/g, "");
 
-    menu.innerHTML = items.map(([route, icon, label]) => {
+    menu.innerHTML = items.map(([route, label]) => {
         const active = current === route ? " active" : "";
         return '<a href="/' + route + '" class="menu-item' + active + '">' +
-            '<span>' + icon + '</span>' + label + '</a>';
+            label + '</a>';
     }).join("");
 }
 
