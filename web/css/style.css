@@ -204,7 +204,7 @@ body {
 
 .sensor-grid {
     display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 18px;
     margin-bottom: 22px;
 }
@@ -270,10 +270,6 @@ body {
 
 .luminosity-card {
     border-top: 4px solid #d8b04c;
-}
-
-.air-card {
-    border-top: 4px solid var(--green-600);
 }
 
 .info-grid {
