@@ -23,7 +23,7 @@ async function loadDevices() {
             card.className = "device-item";
 
             const title = document.createElement("h3");
-            title.textContent = "🧩 " + device.name;
+            title.textContent = device.name;
 
             const status = document.createElement("p");
             status.textContent = device.status === "online" ? "● Online" : "● Offline";
