@@ -17,7 +17,7 @@
         <aside class="sidebar">
 
             <div class="logo-area">
-                <div class="logo-icon">🌿</div>
+                <div class="logo-icon" aria-hidden="true">ES</div>
 
                 <div>
                     <h1>EcoSense</h1>
@@ -28,33 +28,33 @@
             <nav class="menu">
 
                 <a href="/dashboard" class="menu-item active">
-                    <span>🏠</span>
+                    
                     Dashboard
                 </a>
 
                 <a href="/historico" class="menu-item">
-                    <span>📊</span>
+                    
                     Histórico
                 </a>
 
                 <a href="/alertas" class="menu-item">
-                    <span>🔔</span>
+                    
                     Alertas
                     <span class="alert-badge" id="alert-count">0</span>
                 </a>
 
                 <a href="/dispositivos" class="menu-item">
-                    <span>⚙️</span>
+                    
                     Dispositivos
                 </a>
 
                 <a href="/controle" class="menu-item">
-                    <span>🌀</span>
+                    
                     Controle
                 </a>
 
                 <a href="/configuracoes" class="menu-item">
-                    <span>🔧</span>
+                    
                     Configurações
                 </a>
 
@@ -75,7 +75,7 @@
             <header class="topbar">
 
                 <div>
-                    <h2>Olá, bem-vindo ao EcoSense! 🌱</h2>
+                    <h2>Olá, bem-vindo ao EcoSense! </h2>
 
                     <p>
                         Acompanhe em tempo real as condições do ambiente.
@@ -100,7 +100,7 @@
                 <article class="sensor-card temperature-card">
 
                     <div class="sensor-header">
-                        <span class="sensor-icon">🌡️</span>
+                        <span class="sensor-icon"></span>
                         <h3>Temperatura</h3>
                     </div>
 
@@ -118,7 +118,7 @@
                 <article class="sensor-card humidity-card">
 
                     <div class="sensor-header">
-                        <span class="sensor-icon">💧</span>
+                        <span class="sensor-icon"></span>
                         <h3>Umidade</h3>
                     </div>
 
@@ -136,7 +136,7 @@
                 <article class="sensor-card luminosity-card">
 
                     <div class="sensor-header">
-                        <span class="sensor-icon">☀️</span>
+                        <span class="sensor-icon"></span>
                         <h3>Luminosidade</h3>
                     </div>
 
@@ -150,25 +150,7 @@
 
                 </article>
 
-                <!-- QUALIDADE DO AR -->
-                <article class="sensor-card air-card">
-
-                    <div class="sensor-header">
-                        <span class="sensor-icon">🍃</span>
-                        <h3>Qualidade do ar</h3>
-                    </div>
-
-                    <div class="sensor-value" id="air-quality">
-                        --
-                    </div>
-
-                    <p class="sensor-description">
-                        Índice atual da qualidade do ar
-                    </p>
-
-                </article>
-
-            </section>
+                </section>
 
             <!-- INFORMAÇÕES DO SISTEMA -->
             <section class="info-grid">
@@ -176,7 +158,7 @@
                 <!-- ÚLTIMA MEDIÇÃO -->
                 <article class="info-card">
 
-                    <div class="info-icon">🕒</div>
+                    
 
                     <div>
                         <h3>Última medição</h3>
@@ -191,7 +173,7 @@
                 <!-- DISPOSITIVO -->
                 <article class="info-card device-card">
 
-                    <div class="device-icon">🧩</div>
+                    
 
                     <div>
                         <h3 id="device-name">
@@ -218,7 +200,7 @@
                 <!-- ALERTAS -->
                 <article class="info-card alert-card">
 
-                    <div class="alert-icon">🔔</div>
+                    
 
                     <div>
                         <h3>Alertas ativos</h3>
@@ -266,11 +248,7 @@
                                 Luminosidade
                             </option>
 
-                            <option value="air_quality">
-                                Qualidade do ar
-                            </option>
-
-                        </select>
+                            </select>
 
                     </div>
 
@@ -292,9 +270,7 @@
 
                     <div class="device-details">
 
-                        <div class="device-image-placeholder">
-                            🌱
-                        </div>
+                        
 
                         <div>
                             <h4 id="device-panel-name">
@@ -332,7 +308,7 @@
                         <div class="control-card">
 
                             <div>
-                                <span class="control-icon">🌀</span>
+                                <span class="control-icon"></span>
                                 <h4>Ventilador</h4>
                             </div>
 
@@ -367,7 +343,7 @@
                         <div class="control-card">
 
                             <div>
-                                <span class="control-icon">💨</span>
+                                <span class="control-icon"></span>
                                 <h4>Exaustor</h4>
                             </div>
 
