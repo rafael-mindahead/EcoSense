@@ -36,10 +36,6 @@ function render() {
         const item = document.createElement("article");
         item.className = "alert-page-item";
 
-        const icon = document.createElement("div");
-        icon.className = "alert-page-icon";
-        icon.textContent = alert.level === "ERROR" ? "⛔" : "⚠️";
-
         const content = document.createElement("div");
         content.className = "alert-page-content";
 
@@ -53,7 +49,7 @@ function render() {
         meta.textContent = alert.created_at || "--";
 
         content.append(title, body, meta);
-        item.append(icon, content);
+        item.append(content);
         container.appendChild(item);
     });
 }
